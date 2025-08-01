@@ -100,9 +100,6 @@
   <div class="output" id="log">🎲 Dice mode activated.</div>
 
   <div class="control-buttons">
-    <button onclick="saveGame()" style="background:teal; color:white;">💾 Save</button>
-    <button onclick="loadGame()" style="background:steelblue; color:white;">📥 Load</button>
-    <button onclick="resetGame()" style="background:darkred; color:white;">🗑️ Reset</button>
     <button onclick="window.close()" style="background:gray; color:white;">Exit</button>
   </div>
 
@@ -218,36 +215,6 @@
       }
       updateBalance();
     }
-
-    function saveGame() {
-      localStorage.setItem("dern88_balance", balance);
-      localStorage.setItem("dern88_mode", currentMode);
-      log("💾 Game saved.");
-    }
-
-    function loadGame() {
-      const savedBalance = localStorage.getItem("dern88_balance");
-      const savedMode = localStorage.getItem("dern88_mode");
-      if (savedBalance !== null) {
-        balance = parseInt(savedBalance);
-        updateBalance();
-        log("📥 Game loaded.");
-      }
-      if (savedMode === "slot") setMode("slot");
-      else setMode("dice");
-    }
-
-    function resetGame() {
-      if (confirm("Reset game and clear save?")) {
-        balance = 500;
-        updateBalance();
-        setMode("dice");
-        localStorage.removeItem("dern88_balance");
-        localStorage.removeItem("dern88_mode");
-        log("🗑️ Game reset.");
-      }
-    }
-  </script>
 
 </body>
 </html>
