@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🎲 DERN88 🎰</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #1c1c2c;
+      font-family: Arial, sans-serif;
+      color: white;
+      text-align: center;
+    }
+    h1 {
+      font-family: Impact, sans-serif;
+      font-size: 72px;
+      color: #98FF98;
+      margin: 20px 0;
+    }
+    .balance {
+      font-size: 28px;
+      color: gold;
+      margin-bottom: 10px;
+    }
+    .mode-buttons button,
+    .game-buttons button {
+      font-size: 20px;
+      padding: 10px 20px;
+      margin: 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    .game-buttons {
+      margin: 20px 0;
+    }
+    #roll-btn, #spin-btn {
+      font-size: 28px;
+      width: 300px;
+      padding: 20px;
+      margin: 20px auto;
+    }
+    .output {
+      background: black;
+      color: lime;
+      font-family: Consolas, monospace;
+      padding: 10px;
+      margin: 20px auto;
+      width: 80%;
+      height: 150px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      border-radius: 10px;
+    }
+    .input-area {
+      margin: 10px;
+    }
+    .input-area input {
+      font-size: 20px;
+      width: 100px;
+      margin: 5px;
+    }
+    .slot-display {
+      font-size: 64px;
+      margin: 20px 0;
+    }
+    .control-buttons button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎲 DERN88 🎰</h1>
+  <div class="balance" id="balance">Balance: $500</div>
+
+  <div class="mode-buttons">
+    <button style="background:#222244; color:white;" onclick="setMode('dice')">Dice Game</button>
+    <button style="background:#442222; color:white;" onclick="setMode('slot')">Slot Game</button>
+  </div>
+
+  <div class="input-area">
+    <div>
+      <label>Bet Amount: <input type="number" id="bet" value="50"></label>
+    </div>
+    <div id="guess-area">
+      <label>Your Guess (1–6): <input type="number" id="guess" value="3" min="1" max="6"></label>
+    </div>
+  </div>
+
+  <div class="game-buttons">
+    <button id="roll-btn" onclick="rollDice()" style="background:#00AA88; color:white;">🎲 Roll Dice</button>
+    <button id="spin-btn" onclick="spinSlot()" style="background:#BB2244; color:white; display:none;">🎰 Spin</button>
+  </div>
+
+  <div class="slot-display" id="slot">🎰 🎰 🎰</div>
+
+  <div class="output" id="log">🎲 Dice mode activated.</div>
+
+  <div class="control-buttons">
+    <button onclick="saveGame()" style="background:teal; color:white;">💾 Save</button>
+    <button onclick="loadGame()" style="background:steelblue; color:white;">📥 Load</button>
+    <button onclick="resetGame()" style="background:darkred; color:white;">🗑️ Reset</button>
+    <button onclick="window.close()" style="background:gray; color:white;">Exit</button>
+  </div>
+
+  <script>
+    let balance = 500;
+    let currentMode = 'dice';
+    let spinning = false;
+
+    window.onload = function () {
+      const savedBalance = localStorage.getItem("dern88_balance");
+      const savedMode = localStorage.getItem("dern88_mode");
+
+      if (savedBalance !== null) {
+        balance = parseInt(savedBalance);
+        updateBalance();
+        log("💾 Save loaded.");
+      }
+
+      if (savedMode === "slot") {
+        setMode("slot");
+      } else {
+        setMode("dice");
+      }
+    };
+
+    function updateBalance() {
+      document.getElementById('balance').innerText = `Balance: $${balance}`;
+      document.getElementById('roll-btn').disabled = balance <= 0;
+      document.getElementById('spin-btn').disabled = balance <= 0;
+      if (balance <= 0) {
+        log("💀 You're out of money!");
+      }
+    }
+
+    function setMode(mode) {
+      currentMode = mode;
+      document.getElementById('roll-btn').style.display = mode === 'dice' ? 'inline-block' : 'none';
+      document.getElementById('spin-btn').style.display = mode === 'slot' ? 'inline-block' : 'none';
+      document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
+      log(mode === 'dice' ? "🎲 Dice mode activated." : "🎰 Slot mode activated.");
+    }
+
+    function log(message) {
+      const logBox = document.getElementById('log');
+      logBox.innerText += `\n${message}`;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function rollDice() {
+      const bet = parseInt(document.getElementById('bet').value);
+      const guess = parseInt(document.getElementById('guess').value);
+      if (isNaN(bet) || isNaN(guess)) return log("❌ Enter valid bet and guess.");
+      if (bet <= 0 || bet > balance) return log("❌ Invalid bet.");
+      if (guess < 1 || guess > 6) return log("❌ Guess must be 1 to 6.");
+
+      const roll = Math.floor(Math.random() * 6) + 1;
+      log(`🎲 You guessed ${guess}. Dice rolled: ${roll}`);
+      if (roll === guess) {
+        balance += bet;
+        log(`✅ You won $${bet}!`);
+      } else {
+        balance -= bet;
+        log(`❌ You lost $${bet}.`);
+      }
+      updateBalance();
+    }
+
+    function spinSlot() {
+      const bet = parseInt(document.getElementById('bet').value);
+      if (isNaN(bet) || bet <= 0 || bet > balance || spinning) {
+        log("❌ Invalid bet or already spinning.");
+        return;
+      }
+
+      spinning = true;
+      document.getElementById('spin-btn').disabled = true;
+      log("🔄 Spinning...");
+
+      const symbols = ['🍒', '🍋', '🔔', '💎', '7️'];
+      let steps = 10;
+      let slots = [];
+
+      const spinInterval = setInterval(() => {
+        slots = [randomSymbol(), randomSymbol(), randomSymbol()];
+        document.getElementById('slot').innerText = slots.join(' ');
+        steps--;
+        if (steps <= 0) {
+          clearInterval(spinInterval);
+          evaluateSlot(slots, bet);
+          spinning = false;
+          document.getElementById('spin-btn').disabled = false;
+        }
+      }, 150);
+    }
+
+    function randomSymbol() {
+      const symbols = ['🍒', '🍋', '🔔', '💎', '7️'];
+      return symbols[Math.floor(Math.random() * symbols.length)];
+    }
+
+    function evaluateSlot(slots, bet) {
+      if (slots[0] === slots[1] && slots[1] === slots[2]) {
+        const win = bet * 5;
+        balance += win;
+        log(`🎉 JACKPOT! You won $${win} with ${slots[0]}!`);
+      } else if (slots[0] === slots[1] || slots[1] === slots[2] || slots[0] === slots[2]) {
+        const win = bet * 2;
+        balance += win;
+        log(`✨ Nice! You won $${win}.`);
+      } else {
+        balance -= bet;
+        log(`🙁 No match. You lost $${bet}.`);
+      }
+      updateBalance();
+    }
+
+    function saveGame() {
+      localStorage.setItem("dern88_balance", balance);
+      localStorage.setItem("dern88_mode", currentMode);
+      log("💾 Game saved.");
+    }
+
+    function loadGame() {
+      const savedBalance = localStorage.getItem("dern88_balance");
+      const savedMode = localStorage.getItem("dern88_mode");
+      if (savedBalance !== null) {
+        balance = parseInt(savedBalance);
+        updateBalance();
+        log("📥 Game loaded.");
+      }
+      if (savedMode === "slot") setMode("slot");
+      else setMode("dice");
+    }
+
+    function resetGame() {
+      if (confirm("Reset game and clear save?")) {
+        balance = 500;
+        updateBalance();
+        setMode("dice");
+        localStorage.removeItem("dern88_balance");
+        localStorage.removeItem("dern88_mode");
+        log("🗑️ Game reset.");
+      }
+    }
+  </script>
+
+</body>
+</html>
