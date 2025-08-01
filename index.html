@@ -64,10 +64,12 @@
       font-size: 64px;
       margin: 20px 0;
     }
-    .control-buttons button {
+    #exit-btn {
       font-size: 18px;
       padding: 10px 20px;
-      margin: 5px;
+      margin-top: 20px;
+      background: gray;
+      color: white;
     }
   </style>
 </head>
@@ -99,41 +101,19 @@
 
   <div class="output" id="log">🎲 Dice mode activated.</div>
 
-  <div class="control-buttons">
-    <button onclick="saveGame()" style="background:teal; color:white;">💾 Save</button>
-    <button onclick="loadGame()" style="background:steelblue; color:white;">📥 Load</button>
-    <button onclick="resetGame()" style="background:darkred; color:white;">🗑️ Reset</button>
-    <button onclick="window.close()" style="background:gray; color:white;">Exit</button>
-  </div>
+  <button id="exit-btn" onclick="window.close()">Exit</button>
 
   <script>
     let balance = 500;
     let currentMode = 'dice';
     let spinning = false;
 
-    window.onload = function () {
-      const savedBalance = localStorage.getItem("dern88_balance");
-      const savedMode = localStorage.getItem("dern88_mode");
-
-      if (savedBalance !== null) {
-        balance = parseInt(savedBalance);
-        updateBalance();
-        log("💾 Save loaded.");
-      }
-
-      if (savedMode === "slot") {
-        setMode("slot");
-      } else {
-        setMode("dice");
-      }
-    };
-
     function updateBalance() {
-      document.getElementById('balance').innerText = Balance: $${balance};
-      document.getElementById('roll-btn').disabled = balance <= 0;
-      document.getElementById('spin-btn').disabled = balance <= 0;
+      document.getElementById('balance').innerText = `Balance: $${balance}`;
       if (balance <= 0) {
         log("💀 You're out of money!");
+        document.getElementById('roll-btn').disabled = true;
+        document.getElementById('spin-btn').disabled = true;
       }
     }
 
@@ -147,7 +127,7 @@
 
     function log(message) {
       const logBox = document.getElementById('log');
-      logBox.innerText += \n${message};
+      logBox.innerText += `\n${message}`;
       logBox.scrollTop = logBox.scrollHeight;
     }
 
@@ -159,13 +139,13 @@
       if (guess < 1 || guess > 6) return log("❌ Guess must be 1 to 6.");
 
       const roll = Math.floor(Math.random() * 6) + 1;
-      log(🎲 You guessed ${guess}. Dice rolled: ${roll});
+      log(`🎲 You guessed ${guess}. Dice rolled: ${roll}`);
       if (roll === guess) {
         balance += bet;
-        log(✅ You won $${bet}!);
+        log(`✅ You won $${bet}!`);
       } else {
         balance -= bet;
-        log(❌ You lost $${bet}.);
+        log(`❌ You lost $${bet}.`);
       }
       updateBalance();
     }
@@ -207,47 +187,18 @@
       if (slots[0] === slots[1] && slots[1] === slots[2]) {
         const win = bet * 5;
         balance += win;
-        log(🎉 JACKPOT! You won $${win} with ${slots[0]}!);
+        log(`🎉 JACKPOT! You won $${win} with ${slots[0]}!`);
       } else if (slots[0] === slots[1] || slots[1] === slots[2] || slots[0] === slots[2]) {
         const win = bet * 2;
         balance += win;
-        log(✨ Nice! You won $${win}.);
+        log(`✨ Nice! You won $${win}.`);
       } else {
         balance -= bet;
-        log(🙁 No match. You lost $${bet}.);
+        log(`🙁 No match. You lost $${bet}.`);
       }
       updateBalance();
     }
-
-    function saveGame() {
-      localStorage.setItem("dern88_balance", balance);
-      localStorage.setItem("dern88_mode", currentMode);
-      log("💾 Game saved.");
-    }
-
-    function loadGame() {
-      const savedBalance = localStorage.getItem("dern88_balance");
-      const savedMode = localStorage.getItem("dern88_mode");
-      if (savedBalance !== null) {
-        balance = parseInt(savedBalance);
-        updateBalance();
-        log("📥 Game loaded.");
-      }
-      if (savedMode === "slot") setMode("slot");
-      else setMode("dice");
-    }
-
-    function resetGame() {
-      if (confirm("Reset game and clear save?")) {
-        balance = 500;
-        updateBalance();
-        setMode("dice");
-        localStorage.removeItem("dern88_balance");
-        localStorage.removeItem("dern88_mode");
-        log("🗑️ Game reset.");
-      }
-    }
   </script>
-
 </body>
 </html>
+
