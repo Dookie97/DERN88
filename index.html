@@ -265,89 +265,98 @@
 let gameOver = false;
 
 function initMinesweeper() {
-  const gameArea = document.getElementById("game-area");
-  gameArea.innerHTML = "";
+  const minesContainer = document.getElementById("mines-container");
+  const mineGrid = document.getElementById("mine-grid");
+  const cashoutBtn = document.getElementById("cashout-btn");
+  const gameSection = document.getElementById("minesweeper-game");
 
-  const minesweeperBoard = document.createElement("div");
-  minesweeperBoard.className = "minesweeper-board";
+  let tiles = [];
+  let revealed = [];
+  let mines = [];
+  let gameActive = false;
+  let reward = 0;
+  let currentBet = parseInt(document.getElementById("bet-amount").value);
 
-  const boardSize = 5;
-  const numMines = 5;
-  const betAmount = parseInt(document.getElementById("bet-amount").value) || 50;
-  let balance = parseInt(localStorage.getItem("balance") || "0");
-
-  if (balance < betAmount) {
-    alert("Insufficient balance to play Minesweeper!");
-    return;
+  function updateBalanceDisplay() {
+    document.getElementById("balance").innerText = localStorage.getItem("dern88_balance") || 0;
   }
 
-  localStorage.setItem("balance", balance - betAmount);
-  updateBalance();
+  function resetGrid() {
+    mineGrid.innerHTML = "";
+    tiles = [];
+    revealed = [];
+    mines = [];
+    gameActive = true;
+    reward = 0;
 
-  const minePositions = new Set();
-  while (minePositions.size < numMines) {
-    minePositions.add(Math.floor(Math.random() * boardSize * boardSize));
-  }
-
-  let gameOver = false;
-  let cashout = 0;
-  const revealed = new Set();
-
-  function handleClick(index, tile) {
-    if (gameOver || revealed.has(index)) return;
-
-    if (minePositions.has(index)) {
-      tile.textContent = "💣";
-      tile.classList.add("mine");
-      gameOver = true;
-      alert("Boom! You hit a mine. Game over.");
+    const balance = parseInt(localStorage.getItem("dern88_balance") || 0);
+    if (balance < currentBet) {
+      alert("Not enough balance!");
       return;
     }
+    localStorage.setItem("dern88_balance", balance - currentBet);
+    updateBalanceDisplay();
 
-    tile.textContent = "✅";
-    tile.classList.add("safe");
-    revealed.add(index);
-    cashout += Math.floor(betAmount * 0.3);
-    updateCashoutDisplay();
-  }
-
-  for (let i = 0; i < boardSize * boardSize; i++) {
-    const tile = document.createElement("div");
-    tile.className = "tile";
-    tile.addEventListener("click", () => handleClick(i, tile));
-    minesweeperBoard.appendChild(tile);
-  }
-
-  const cashoutBtn = document.createElement("button");
-  cashoutBtn.textContent = "💰 Cash Out";
-  cashoutBtn.className = "cashout-button";
-  cashoutBtn.addEventListener("click", () => {
-    if (cashout > 0) {
-      let balance = parseInt(localStorage.getItem("balance") || "0");
-      balance += cashout;
-      localStorage.setItem("balance", balance);
-      updateBalance();
-      alert(`You cashed out ${cashout} coins!`);
-      gameArea.innerHTML = "";
+    for (let i = 0; i < 25; i++) {
+      const tile = document.createElement("div");
+      tile.className = "mine-tile";
+      tile.dataset.index = i;
+      tile.addEventListener("click", () => handleTileClick(i));
+      mineGrid.appendChild(tile);
+      tiles.push(tile);
     }
-  });
 
-  const cashoutDisplay = document.createElement("div");
-  cashoutDisplay.id = "cashout-display";
-  cashoutDisplay.textContent = `Cashout: ${cashout}`;
+    while (mines.length < 5) {
+      const rand = Math.floor(Math.random() * 25);
+      if (!mines.includes(rand)) mines.push(rand);
+    }
 
-  function updateCashoutDisplay() {
-    cashoutDisplay.textContent = `Cashout: ${cashout}`;
+    cashoutBtn.style.display = "inline-block";
+    cashoutBtn.onclick = () => {
+      const currentBalance = parseInt(localStorage.getItem("dern88_balance") || 0);
+      localStorage.setItem("dern88_balance", currentBalance + reward);
+      updateBalanceDisplay();
+      alert("You cashed out: " + reward);
+      endGame();
+    };
   }
 
-  gameArea.appendChild(cashoutDisplay);
-  gameArea.appendChild(cashoutBtn);
-  gameArea.appendChild(minesweeperBoard);
+  function handleTileClick(index) {
+    if (!gameActive || revealed.includes(index)) return;
+
+    if (mines.includes(index)) {
+      tiles[index].innerText = "💣";
+      tiles[index].classList.add("mine-bomb");
+      alert("Boom! You hit a mine.");
+      endGame();
+    } else {
+      tiles[index].innerText = "💎";
+      tiles[index].classList.add("mine-safe");
+      revealed.push(index);
+      reward = Math.floor(currentBet * (1 + revealed.length * 0.3));
+    }
+  }
+
+  function endGame() {
+    gameActive = false;
+    cashoutBtn.style.display = "none";
+    mines.forEach((idx) => {
+      if (!revealed.includes(idx)) {
+        tiles[idx].innerText = "💣";
+        tiles[idx].classList.add("mine-bomb");
+      }
+    });
+  }
+
+  gameSection.style.display = "block";
+  resetGrid();
 }
+
 
   </script>
 </body>
 </html>
+
 
 
 
