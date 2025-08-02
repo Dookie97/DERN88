@@ -265,97 +265,49 @@
 let gameOver = false;
 
 function initMinesweeper() {
-  const minesContainer = document.getElementById("mines-container");
-  const mineGrid = document.getElementById("mine-grid");
-  const cashoutBtn = document.getElementById("cashout-btn");
-  const gameSection = document.getElementById("minesweeper-game");
+  const board = document.getElementById("minesweeper-board");
+  board.innerHTML = "";
+  board.style.display = "grid";
+  board.style.gridTemplateColumns = "repeat(5, 60px)";
+  board.style.gridTemplateRows = "repeat(5, 60px)";
+  board.style.gap = "5px";
 
-  let tiles = [];
-  let revealed = [];
-  let mines = [];
-  let gameActive = false;
-  let reward = 0;
-  let currentBet = parseInt(document.getElementById("bet-amount").value);
+  const bombIndex = Math.floor(Math.random() * 25);
+  let gameOver = false;
 
-  function updateBalanceDisplay() {
-    document.getElementById("balance").innerText = localStorage.getItem("dern88_balance") || 0;
-  }
+  for (let i = 0; i < 25; i++) {
+    const tile = document.createElement("div");
+    tile.classList.add("minesweeper-tile");
+    tile.style.width = "60px";
+    tile.style.height = "60px";
+    tile.style.background = "#444";
+    tile.style.display = "flex";
+    tile.style.alignItems = "center";
+    tile.style.justifyContent = "center";
+    tile.style.fontSize = "24px";
+    tile.style.color = "white";
+    tile.style.cursor = "pointer";
 
-  function resetGrid() {
-    mineGrid.innerHTML = "";
-    tiles = [];
-    revealed = [];
-    mines = [];
-    gameActive = true;
-    reward = 0;
-
-    const balance = parseInt(localStorage.getItem("dern88_balance") || 0);
-    if (balance < currentBet) {
-      alert("Not enough balance!");
-      return;
-    }
-    localStorage.setItem("dern88_balance", balance - currentBet);
-    updateBalanceDisplay();
-
-    for (let i = 0; i < 25; i++) {
-      const tile = document.createElement("div");
-      tile.className = "mine-tile";
-      tile.dataset.index = i;
-      tile.addEventListener("click", () => handleTileClick(i));
-      mineGrid.appendChild(tile);
-      tiles.push(tile);
-    }
-
-    while (mines.length < 5) {
-      const rand = Math.floor(Math.random() * 25);
-      if (!mines.includes(rand)) mines.push(rand);
-    }
-
-    cashoutBtn.style.display = "inline-block";
-    cashoutBtn.onclick = () => {
-      const currentBalance = parseInt(localStorage.getItem("dern88_balance") || 0);
-      localStorage.setItem("dern88_balance", currentBalance + reward);
-      updateBalanceDisplay();
-      alert("You cashed out: " + reward);
-      endGame();
-    };
-  }
-
-  function handleTileClick(index) {
-    if (!gameActive || revealed.includes(index)) return;
-
-    if (mines.includes(index)) {
-      tiles[index].innerText = "💣";
-      tiles[index].classList.add("mine-bomb");
-      alert("Boom! You hit a mine.");
-      endGame();
-    } else {
-      tiles[index].innerText = "💎";
-      tiles[index].classList.add("mine-safe");
-      revealed.push(index);
-      reward = Math.floor(currentBet * (1 + revealed.length * 0.3));
-    }
-  }
-
-  function endGame() {
-    gameActive = false;
-    cashoutBtn.style.display = "none";
-    mines.forEach((idx) => {
-      if (!revealed.includes(idx)) {
-        tiles[idx].innerText = "💣";
-        tiles[idx].classList.add("mine-bomb");
+    tile.addEventListener("click", () => {
+      if (gameOver) return;
+      if (i === bombIndex) {
+        tile.textContent = "💣";
+        tile.style.background = "red";
+        gameOver = true;
+        alert("Game Over!");
+      } else {
+        tile.textContent = "✅";
+        tile.style.background = "green";
       }
     });
+
+    board.appendChild(tile);
   }
-
-  gameSection.style.display = "block";
-  resetGrid();
 }
-
-
   </script>
 </body>
 </html>
+
 
 
 
