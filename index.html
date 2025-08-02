@@ -267,25 +267,24 @@ let gameOver = false;
 function initMinesweeper() {
   const grid = document.getElementById("minesweeper-grid");
   grid.innerHTML = "";
-  gameOver = false;
 
-  const betInput = parseInt(document.getElementById("bet").value);
-  if (isNaN(betInput) || betInput <= 0 || betInput > balance) {
+  const bet = parseInt(document.getElementById("bet").value);
+  if (isNaN(bet) || bet <= 0 || bet > balance) {
     log("❌ Invalid bet.");
     return;
   }
 
-  currentBet = betInput;
   const rows = 5, cols = 5, total = rows * cols, mines = 10;
   const mineIndexes = new Set();
   while (mineIndexes.size < mines) {
     mineIndexes.add(Math.floor(Math.random() * total));
   }
 
+  let gameOver = false;
+  let revealed = new Set();
+
   for (let i = 0; i < total; i++) {
     const cell = document.createElement("button");
-    cell.className = "mine-cell";
-    cell.textContent = "";
     cell.style.width = "50px";
     cell.style.height = "50px";
     cell.style.margin = "2px";
@@ -295,48 +294,32 @@ function initMinesweeper() {
     cell.dataset.index = i;
 
     cell.onclick = function () {
-      if (gameOver || this.disabled) return;
+      if (gameOver || revealed.has(i)) return;
+
+      revealed.add(i);
+      this.disabled = true;
 
       if (mineIndexes.has(i)) {
         this.innerText = "💣";
         this.style.background = "red";
-        balance -= currentBet;
-        updateBalance();
-        log(`💥 Mine hit! You lost $${currentBet}`);
-        endMinesweeperGame(grid);
-        return;
+        balance -= bet;
+        log(`💥 Mine hit! You lost $${bet}`);
+        gameOver = true;
+        showRestartButton();
       } else {
         this.innerText = "✅";
         this.style.background = "green";
-        balance += currentBet;
-        updateBalance();
-        log(`🎯 Safe! You won $${currentBet}`);
-        this.disabled = true;
+        balance += bet;
+        log(`🎯 Safe! You won $${bet}`);
       }
+
+      updateBalance();
     };
 
     grid.appendChild(cell);
     if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
   }
 }
-
-function endMinesweeperGame(grid) {
-  gameOver = true;
-  const buttons = grid.querySelectorAll("button");
-  buttons.forEach(btn => btn.disabled = true);
-
-  // Show Restart button
-  const restart = document.createElement("button");
-  restart.innerText = "🔁 Restart";
-  restart.style.marginTop = "10px";
-  restart.onclick = () => {
-    restart.remove();
-    initMinesweeper();
-  };
-  grid.appendChild(document.createElement("br"));
-  grid.appendChild(restart);
-}
-
 
     function disableAll(container) {
       const buttons = container.querySelectorAll("button");
@@ -345,6 +328,7 @@ function endMinesweeperGame(grid) {
   </script>
 </body>
 </html>
+
 
 
 
