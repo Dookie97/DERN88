@@ -303,14 +303,14 @@ function initMinesweeper() {
         this.innerText = "💣";
         this.style.background = "red";
         balance -= bet;
-        log('💥 Mine hit! You lost $${bet}'');
+        log(`💥 Mine hit! You lost $${bet}`);
         gameOver = true;
         showRestartButton();
       } else {
         this.innerText = "✅";
         this.style.background = "green";
         balance += bet;
-        log('🎯 Safe! You won $${bet}'')
+        log(`🎯 Safe! You won $${bet}`);
       }
 
       updateBalance();
@@ -320,7 +320,6 @@ function initMinesweeper() {
     if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
   }
 }
-
     function disableAll(container) {
       const buttons = container.querySelectorAll("button");
       buttons.forEach(btn => btn.disabled = true);
@@ -328,6 +327,7 @@ function initMinesweeper() {
   </script>
 </body>
 </html>
+
 
 
 
