@@ -265,62 +265,72 @@
 let gameOver = false;
 
 function initMinesweeper() {
+  document.getElementById("minesweeper-section").style.display = "block";
+  document.getElementById("slot-section").style.display = "none";
+  document.getElementById("dice-section").style.display = "none";
+
   const grid = document.getElementById("minesweeper-grid");
   grid.innerHTML = "";
 
-  const bet = parseInt(document.getElementById("bet").value);
-  if (isNaN(bet) || bet <= 0 || bet > balance) {
-    log("❌ Invalid bet.");
+  let betInput = parseInt(document.getElementById("minesweeper-bet").value);
+  if (isNaN(betInput) || betInput <= 0 || betInput > balance) {
+    logMessage("⚠️ Invalid bet amount!", "red");
     return;
   }
 
-  const rows = 5, cols = 5, total = rows * cols, mines = 10;
-  const mineIndexes = new Set();
-  while (mineIndexes.size < mines) {
-    mineIndexes.add(Math.floor(Math.random() * total));
+  currentBet = betInput;
+  balance -= currentBet;
+  saveBalance();
+  logMessage(`💣 Minesweeper started with $${currentBet} bet.`, "yellow");
+
+  // Reset game state
+  mines = [];
+  revealedTiles = [];
+  gameOver = false;
+
+  // Place 5 bombs randomly
+  while (mines.length < 5) {
+    let rand = Math.floor(Math.random() * 25);
+    if (!mines.includes(rand)) mines.push(rand);
   }
 
-  let gameOver = false;
-  let revealed = new Set();
+  // Create tiles
+  for (let i = 0; i < 25; i++) {
+    const tile = document.createElement("div");
+    tile.className = "minesweeper-tile";
+    tile.dataset.index = i;
+    tile.style.width = "50px";
+    tile.style.height = "50px";
+    tile.style.backgroundColor = "#333";
+    tile.style.display = "flex";
+    tile.style.alignItems = "center";
+    tile.style.justifyContent = "center";
+    tile.style.color = "#fff";
+    tile.style.fontWeight = "bold";
+    tile.style.cursor = "pointer";
+    tile.style.border = "1px solid #111";
+    tile.onclick = () => {
+      if (gameOver || revealedTiles.includes(i)) return;
 
-  for (let i = 0; i < total; i++) {
-    const cell = document.createElement("button");
-    cell.style.width = "50px";
-    cell.style.height = "50px";
-    cell.style.margin = "2px";
-    cell.style.fontSize = "22px";
-    cell.style.background = "#444";
-    cell.style.color = "white";
-    cell.dataset.index = i;
-
-    cell.onclick = function () {
-      if (gameOver || revealed.has(i)) return;
-
-      revealed.add(i);
-      this.disabled = true;
-
-      if (mineIndexes.has(i)) {
-        this.innerText = "💣";
-        this.style.background = "red";
-        balance -= bet;
-        log(`💥 Mine hit! You lost $${bet}`);
+      if (mines.includes(i)) {
+        tile.style.backgroundColor = "#c0392b";
+        tile.textContent = "💣";
+        logMessage("💥 BOOM! You hit a bomb!", "red");
         gameOver = true;
-        showRestartButton();
       } else {
-        this.innerText = "✅";
-        this.style.background = "green";
-        balance += bet;
-        log(`🎯 Safe! You won $${bet}`);
+        tile.style.backgroundColor = "#2ecc71";
+        tile.textContent = "✅";
+        revealedTiles.push(i);
+
+        let reward = Math.floor(currentBet / 5);
+        balance += reward;
+        saveBalance();
+        logMessage(`✅ Safe! +$${reward}`, "green");
       }
-
-      updateBalance();
     };
-
-    grid.appendChild(cell);
-    if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
+    grid.appendChild(tile);
   }
 }
-
     function disableAll(container) {
       const buttons = container.querySelectorAll("button");
       buttons.forEach(btn => btn.disabled = true);
@@ -328,6 +338,7 @@ function initMinesweeper() {
   </script>
 </body>
 </html>
+
 
 
 
