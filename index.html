@@ -71,24 +71,53 @@
       background: gray;
       color: white;
     }
+    #login-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #1c1c2c;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+    #login-screen input {
+      font-size: 22px;
+      padding: 10px;
+      margin: 10px;
+      width: 200px;
+      text-align: center;
+    }
+    #login-screen button {
+      font-size: 22px;
+      padding: 10px 20px;
+    }
   </style>
 </head>
 <body>
 
+  <div id="login-screen">
+    <h1>🎲 DERN88 🎰</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login / Signup</button>
+    <div id="login-error" style="color:red; margin-top:10px;"></div>
+  </div>
+
   <h1>🎲 DERN88 🎰</h1>
-  <div class="balance" id="balance">Balance: $500</div>
+  <div class="balance" id="balance">Balance: $0</div>
 
   <div class="mode-buttons">
-    <button style="background:#222244; color:white;" onclick="setMode('dice')">Dice Game</button>
-    <button style="background:#442222; color:white;" onclick="setMode('slot')">Slot Game</button>
-    <button onclick="setMode('minesweeper')" style="background-color: #336633; color: white;">Minesweeper [NEW!]</button>
+  <button style="background:#222244; color:white;" onclick="setMode('dice')">Dice Game</button>
+  <button style="background:#442222; color:white;" onclick="setMode('slot')">Slot Game</button>
+  <button onclick="setMode('minesweeper')" style="background-color: #336633; color: white;">Minesweeper [NEW!]</button>
+</div>
 
-    <div id="minesweeper-container" style="display:none; margin-top:20px;">
+<div id="minesweeper-container" style="display:none; margin-top:20px;">
   <h3 style="color:white;">💣 Pick a Safe Tile!</h3>
   <div id="minesweeper-grid"></div>
 </div>
-
-  </div>
 
   <div class="input-area">
     <div>
@@ -112,35 +141,60 @@
 
   <script>
     let balance = 500;
-    let currentMode = 'dice';
+    let currentUser = null;
     let spinning = false;
 
-    function updateBalance() {
-      document.getElementById('balance').innerText = `Balance: $${balance}`;
-      if (balance <= 0) {
-        log("💀 You're out of money!");
-        document.getElementById('roll-btn').disabled = true;
-        document.getElementById('spin-btn').disabled = true;
+    function login() {
+      const name = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      if (!name || !pass) return showLoginError("Enter both username and password.");
+      const userKey = "dern88_" + name;
+      const saved = localStorage.getItem(userKey);
+      const savedPass = localStorage.getItem(userKey + "_pass");
+
+      if (saved) {
+        if (savedPass !== pass) return showLoginError("❌ Wrong password.");
+        balance = parseInt(saved);
+        log(`Welcome back, ${name}!`);
+      } else {
+        balance = 500;
+        localStorage.setItem(userKey, balance);
+        localStorage.setItem(userKey + "_pass", pass);
+        log(`Welcome, ${name}! Account created.`);
       }
+
+      currentUser = name;
+      updateBalance();
+      document.getElementById("login-screen").style.display = "none";
     }
 
-    function setMode(mode) {
-      currentMode = mode;
-      document.getElementById('roll-btn').style.display = mode === 'dice' ? 'inline-block' : 'none';
-      document.getElementById('spin-btn').style.display = mode === 'slot' ? 'inline-block' : 'none';
-      document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
-      log(mode === 'dice' ? "🎲 Dice mode activated." : "🎰 Slot mode activated.");
+    function showLoginError(msg) {
+      document.getElementById("login-error").innerText = msg;
     }
 
-    function log(message) {
-      const logBox = document.getElementById('log');
-      logBox.innerText += `\n${message}`;
+    function updateBalance() {
+      document.getElementById("balance").innerText = `Balance: $${balance}`;
+      if (currentUser) localStorage.setItem("dern88_" + currentUser, balance);
+    }
+
+    function log(msg) {
+      const logBox = document.getElementById("log");
+      logBox.innerText += `\n${msg}`;
       logBox.scrollTop = logBox.scrollHeight;
     }
 
+    function setMode(mode) {
+      document.getElementById('roll-btn').style.display = mode === 'dice' ? 'inline-block' : 'none';
+      document.getElementById('spin-btn').style.display = mode === 'slot' ? 'inline-block' : 'none';
+      document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
+      document.getElementById('minesweeper-container').style.display = mode === 'minesweeper' ? 'block' : 'none';
+      log(mode === 'minesweeper' ? "💣 Minesweeper mode activated." : mode === 'slot' ? "🎰 Slot mode activated." : "🎲 Dice mode activated.");
+      if (mode === 'minesweeper') initMinesweeper();
+    }
+
     function rollDice() {
-      const bet = parseInt(document.getElementById('bet').value);
-      const guess = parseInt(document.getElementById('guess').value);
+      const bet = parseInt(document.getElementById("bet").value);
+      const guess = parseInt(document.getElementById("guess").value);
       if (isNaN(bet) || isNaN(guess)) return log("❌ Enter valid bet and guess.");
       if (bet <= 0 || bet > balance) return log("❌ Invalid bet.");
       if (guess < 1 || guess > 6) return log("❌ Guess must be 1 to 6.");
@@ -158,14 +212,14 @@
     }
 
     function spinSlot() {
-      const bet = parseInt(document.getElementById('bet').value);
+      const bet = parseInt(document.getElementById("bet").value);
       if (isNaN(bet) || bet <= 0 || bet > balance || spinning) {
         log("❌ Invalid bet or already spinning.");
         return;
       }
 
       spinning = true;
-      document.getElementById('spin-btn').disabled = true;
+      document.getElementById("spin-btn").disabled = true;
       log("🔄 Spinning...");
 
       const symbols = ['🍒', '🍋', '🔔', '💎', '7️'];
@@ -174,13 +228,13 @@
 
       const spinInterval = setInterval(() => {
         slots = [randomSymbol(), randomSymbol(), randomSymbol()];
-        document.getElementById('slot').innerText = slots.join(' ');
+        document.getElementById("slot").innerText = slots.join(" ");
         steps--;
         if (steps <= 0) {
           clearInterval(spinInterval);
           evaluateSlot(slots, bet);
           spinning = false;
-          document.getElementById('spin-btn').disabled = false;
+          document.getElementById("spin-btn").disabled = false;
         }
       }, 150);
     }
@@ -206,101 +260,67 @@
       updateBalance();
     }
 
-function setMode(mode) {
-  document.getElementById('roll-btn').style.display = mode === 'dice' ? 'inline-block' : 'none';
-  document.getElementById('spin-btn').style.display = mode === 'slot' ? 'inline-block' : 'none';
-  document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
-  document.getElementById('minesweeper-container').style.display = mode === 'minesweeper' ? 'block' : 'none';
-  log(mode === 'minesweeper' ? "💣 Minesweeper mode activated." : "");
-  if (mode === 'minesweeper') initMinesweeper();
-}
+    function initMinesweeper() {
+      const grid = document.getElementById("minesweeper-grid");
+      grid.innerHTML = "";
+      const bet = parseInt(document.getElementById("bet").value);
+      if (isNaN(bet) || bet <= 0 || bet > balance) {
+        log("❌ Invalid bet.");
+        return;
+      }
 
-function initMinesweeper() {
-  const grid = document.getElementById("minesweeper-grid");
-  grid.innerHTML = "";
+      const rows = 5, cols = 5, total = rows * cols, mines = 10;
+      const mineIndexes = new Set();
+      while (mineIndexes.size < mines) {
+        mineIndexes.add(Math.floor(Math.random() * total));
+      }
 
-  const bet = parseInt(document.getElementById("bet").value);
-  if (isNaN(bet) || bet <= 0 || bet > balance) {
-    log("❌ Invalid bet.");
-    return;
-  }
+      for (let i = 0; i < total; i++) {
+        const cell = document.createElement("button");
+        cell.dataset.index = i;
+        cell.style.width = "50px";
+        cell.style.height = "50px";
+        cell.style.margin = "2px";
+        cell.style.fontSize = "22px";
+        cell.style.background = "#444";
+        cell.style.color = "white";
 
-  const rows = 5, cols = 5, total = rows * cols, mines = 5;
-  const mineIndexes = new Set();
-  while (mineIndexes.size < mines) {
-    mineIndexes.add(Math.floor(Math.random() * total));
-  }
+        cell.onclick = function () {
+          const index = parseInt(this.dataset.index);
+          if (mineIndexes.has(index)) {
+            this.innerText = "💣";
+            this.style.background = "red";
+            balance -= bet;
+            updateBalance();
+            log(`💥 Mine hit! You lost $${bet}`);
+            disableAll(grid);
+            const restartBtn = document.createElement("button");
+            restartBtn.innerText = "Restart";
+            restartBtn.style.marginTop = "10px";
+            restartBtn.onclick = initMinesweeper;
+            grid.appendChild(document.createElement("br"));
+            grid.appendChild(restartBtn);
+          } else {
+            this.innerText = "✅";
+            this.style.background = "green";
+            balance += bet;
+            updateBalance();
+            log(`🎯 Safe! You won $${bet}`);
+          }
+          this.disabled = true;
+        };
 
-  for (let i = 0; i < total; i++) {
-  const cell = document.createElement("button");
-  cell.dataset.index = i;
-  cell.style.width = "50px";
-  cell.style.height = "50px";
-  cell.style.margin = "2px";
-  cell.style.fontSize = "22px";
-  cell.style.background = "#444";
-  cell.style.color = "white";
-
-  cell.onclick = function () {
-    const index = parseInt(this.dataset.index);
-    if (mineIndexes.has(index)) {
-      this.innerText = "💣";
-      this.style.background = "red";
-      balance -= bet;
-      updateBalance();
-      log(`💥 Mine hit! You lost $${bet}`);
-
-      // Disable all buttons
-      const buttons = grid.querySelectorAll("button");
-      buttons.forEach(btn => btn.disabled = true);
-
-      // Add Restart button
-      const restartBtn = document.createElement("button");
-      restartBtn.innerText = "Restart";
-      restartBtn.style.marginTop = "10px";
-      restartBtn.onclick = initMinesweeper;
-      grid.appendChild(document.createElement("br"));
-      grid.appendChild(restartBtn);
-    } else {
-      this.innerText = "✅";
-      this.style.background = "green";
-      balance += bet;
-      updateBalance();
-      log(`🎯 Safe! You won $${bet}`);
+        grid.appendChild(cell);
+        if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
+      }
     }
 
-    this.disabled = true;
-  };
-
-  grid.appendChild(cell);
-  if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
-}
-
-  if (mineIndexes.has(i)) {
-  this.innerText = "💣";
-  this.style.background = "red";
-  balance -= bet;
-  updateBalance();
-  log(`💥 Mine hit! You lost $${bet}`);
-
-  // Disable all cells
-  const buttons = grid.querySelectorAll("button");
-  buttons.forEach(btn => btn.disabled = true);
-
-  // Create and show restart button
-  const restartBtn = document.createElement("button");
-  restartBtn.innerText = "Restart";
-  restartBtn.style.marginTop = "10px";
-  restartBtn.onclick = initMinesweeper;
-  grid.appendChild(document.createElement("br"));
-  grid.appendChild(restartBtn);
-
-  return;
-}
-};
-
-    grid.appendChild(cell);
-    if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
+    function disableAll(container) {
+      const buttons = container.querySelectorAll("button");
+      buttons.forEach(btn => btn.disabled = true);
+    }
   </script>
 </body>
 </html>
+
+
