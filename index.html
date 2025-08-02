@@ -265,79 +265,90 @@
 let gameOver = false;
 
 function initMinesweeper() {
-  document.getElementById("minesweeper-section").style.display = "block";
-  document.getElementById("slot-section").style.display = "none";
-  document.getElementById("dice-section").style.display = "none";
+  const gameArea = document.getElementById("game-area");
+  gameArea.innerHTML = "";
 
-  const grid = document.getElementById("minesweeper-grid");
-  grid.innerHTML = "";
+  const minesweeperBoard = document.createElement("div");
+  minesweeperBoard.className = "minesweeper-board";
 
-  let betInput = parseInt(document.getElementById("minesweeper-bet").value);
-  if (isNaN(betInput) || betInput <= 0 || betInput > balance) {
-    logMessage("⚠️ Invalid bet amount!", "red");
+  const boardSize = 5;
+  const numMines = 5;
+  const betAmount = parseInt(document.getElementById("bet-amount").value) || 50;
+  let balance = parseInt(localStorage.getItem("balance") || "0");
+
+  if (balance < betAmount) {
+    alert("Insufficient balance to play Minesweeper!");
     return;
   }
 
-  currentBet = betInput;
-  balance -= currentBet;
-  saveBalance();
-  logMessage(`💣 Minesweeper started with $${currentBet} bet.`, "yellow");
+  localStorage.setItem("balance", balance - betAmount);
+  updateBalance();
 
-  // Reset game state
-  mines = [];
-  revealedTiles = [];
-  gameOver = false;
-
-  // Place 5 bombs randomly
-  while (mines.length < 5) {
-    let rand = Math.floor(Math.random() * 25);
-    if (!mines.includes(rand)) mines.push(rand);
+  const minePositions = new Set();
+  while (minePositions.size < numMines) {
+    minePositions.add(Math.floor(Math.random() * boardSize * boardSize));
   }
 
-  // Create tiles
-  for (let i = 0; i < 25; i++) {
-    const tile = document.createElement("div");
-    tile.className = "minesweeper-tile";
-    tile.dataset.index = i;
-    tile.style.width = "50px";
-    tile.style.height = "50px";
-    tile.style.backgroundColor = "#333";
-    tile.style.display = "flex";
-    tile.style.alignItems = "center";
-    tile.style.justifyContent = "center";
-    tile.style.color = "#fff";
-    tile.style.fontWeight = "bold";
-    tile.style.cursor = "pointer";
-    tile.style.border = "1px solid #111";
-    tile.onclick = () => {
-      if (gameOver || revealedTiles.includes(i)) return;
+  let gameOver = false;
+  let cashout = 0;
+  const revealed = new Set();
 
-      if (mines.includes(i)) {
-        tile.style.backgroundColor = "#c0392b";
-        tile.textContent = "💣";
-        logMessage("💥 BOOM! You hit a bomb!", "red");
-        gameOver = true;
-      } else {
-        tile.style.backgroundColor = "#2ecc71";
-        tile.textContent = "✅";
-        revealedTiles.push(i);
+  function handleClick(index, tile) {
+    if (gameOver || revealed.has(index)) return;
 
-        let reward = Math.floor(currentBet / 5);
-        balance += reward;
-        saveBalance();
-        logMessage(`✅ Safe! +$${reward}`, "green");
-      }
-    };
-    grid.appendChild(tile);
-  }
-}
-    function disableAll(container) {
-      const buttons = container.querySelectorAll("button");
-      buttons.forEach(btn => btn.disabled = true);
+    if (minePositions.has(index)) {
+      tile.textContent = "💣";
+      tile.classList.add("mine");
+      gameOver = true;
+      alert("Boom! You hit a mine. Game over.");
+      return;
     }
+
+    tile.textContent = "✅";
+    tile.classList.add("safe");
+    revealed.add(index);
+    cashout += Math.floor(betAmount * 0.3);
+    updateCashoutDisplay();
+  }
+
+  for (let i = 0; i < boardSize * boardSize; i++) {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.addEventListener("click", () => handleClick(i, tile));
+    minesweeperBoard.appendChild(tile);
+  }
+
+  const cashoutBtn = document.createElement("button");
+  cashoutBtn.textContent = "💰 Cash Out";
+  cashoutBtn.className = "cashout-button";
+  cashoutBtn.addEventListener("click", () => {
+    if (cashout > 0) {
+      let balance = parseInt(localStorage.getItem("balance") || "0");
+      balance += cashout;
+      localStorage.setItem("balance", balance);
+      updateBalance();
+      alert(`You cashed out ${cashout} coins!`);
+      gameArea.innerHTML = "";
+    }
+  });
+
+  const cashoutDisplay = document.createElement("div");
+  cashoutDisplay.id = "cashout-display";
+  cashoutDisplay.textContent = `Cashout: ${cashout}`;
+
+  function updateCashoutDisplay() {
+    cashoutDisplay.textContent = `Cashout: ${cashout}`;
+  }
+
+  gameArea.appendChild(cashoutDisplay);
+  gameArea.appendChild(cashoutBtn);
+  gameArea.appendChild(minesweeperBoard);
+}
+
   </script>
 </body>
 </html>
+
 
 
 
