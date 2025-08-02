@@ -260,60 +260,56 @@
       updateBalance();
     }
 
-    function initMinesweeper() {
-      const grid = document.getElementById("minesweeper-grid");
-      grid.innerHTML = "";
-      const bet = parseInt(document.getElementById("bet").value);
-      if (isNaN(bet) || bet <= 0 || bet > balance) {
-        log("❌ Invalid bet.");
-        return;
+    let currentBet = 0; // 🔄 Global variable to store the current bet
+
+function initMinesweeper() {
+  const grid = document.getElementById("minesweeper-grid");
+  grid.innerHTML = "";
+
+  currentBet = parseInt(document.getElementById("bet").value);
+  if (isNaN(currentBet) || currentBet <= 0 || currentBet > balance) {
+    log("❌ Invalid bet.");
+    return;
+  }
+
+  const rows = 5, cols = 5, total = rows * cols, mines = 10;
+  const mineIndexes = new Set();
+  while (mineIndexes.size < mines) {
+    mineIndexes.add(Math.floor(Math.random() * total));
+  }
+
+  for (let i = 0; i < total; i++) {
+    const cell = document.createElement("button");
+    cell.style.width = "50px";
+    cell.style.height = "50px";
+    cell.style.margin = "2px";
+    cell.style.fontSize = "22px";
+    cell.style.background = "#444";
+    cell.style.color = "white";
+    cell.dataset.index = i;
+
+    cell.onclick = function () {
+      if (mineIndexes.has(i)) {
+        this.innerText = "💣";
+        this.style.background = "red";
+        balance -= currentBet;
+        log(`💥 Mine hit! You lost $${currentBet}`);
+        updateBalance();
+        endMinesweeperGame(); // Stop the game (you can define this function)
+      } else {
+        this.innerText = "✅";
+        this.style.background = "green";
+        balance += currentBet;
+        log(`🎯 Safe! You won $${currentBet}`);
+        updateBalance();
       }
+      this.disabled = true;
+    };
 
-      const rows = 5, cols = 5, total = rows * cols, mines = 10;
-      const mineIndexes = new Set();
-      while (mineIndexes.size < mines) {
-        mineIndexes.add(Math.floor(Math.random() * total));
-      }
-
-      for (let i = 0; i < total; i++) {
-        const cell = document.createElement("button");
-        cell.dataset.index = i;
-        cell.style.width = "50px";
-        cell.style.height = "50px";
-        cell.style.margin = "2px";
-        cell.style.fontSize = "22px";
-        cell.style.background = "#444";
-        cell.style.color = "white";
-
-        cell.onclick = function () {
-          const index = parseInt(this.dataset.index);
-          if (mineIndexes.has(index)) {
-            this.innerText = "💣";
-            this.style.background = "red";
-            balance -= bet;
-            updateBalance();
-            log(`💥 Mine hit! You lost $${bet}`);
-            disableAll(grid);
-            const restartBtn = document.createElement("button");
-            restartBtn.innerText = "Restart";
-            restartBtn.style.marginTop = "10px";
-            restartBtn.onclick = initMinesweeper;
-            grid.appendChild(document.createElement("br"));
-            grid.appendChild(restartBtn);
-          } else {
-            this.innerText = "✅";
-            this.style.background = "green";
-            balance += bet;
-            updateBalance();
-            log(`🎯 Safe! You won $${bet}`);
-          }
-          this.disabled = true;
-        };
-
-        grid.appendChild(cell);
-        if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
-      }
-    }
+    grid.appendChild(cell);
+    if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
+  }
+}
 
     function disableAll(container) {
       const buttons = container.querySelectorAll("button");
@@ -322,5 +318,6 @@
   </script>
 </body>
 </html>
+
 
 
