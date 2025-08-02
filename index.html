@@ -262,16 +262,20 @@
 
     let currentBet = 0; // 🔄 Global variable to store the current bet
 
+let gameOver = false;
+
 function initMinesweeper() {
   const grid = document.getElementById("minesweeper-grid");
   grid.innerHTML = "";
+  gameOver = false;
 
-  currentBet = parseInt(document.getElementById("bet").value);
-  if (isNaN(currentBet) || currentBet <= 0 || currentBet > balance) {
+  const betInput = parseInt(document.getElementById("bet").value);
+  if (isNaN(betInput) || betInput <= 0 || betInput > balance) {
     log("❌ Invalid bet.");
     return;
   }
 
+  currentBet = betInput;
   const rows = 5, cols = 5, total = rows * cols, mines = 10;
   const mineIndexes = new Set();
   while (mineIndexes.size < mines) {
@@ -280,6 +284,8 @@ function initMinesweeper() {
 
   for (let i = 0; i < total; i++) {
     const cell = document.createElement("button");
+    cell.className = "mine-cell";
+    cell.textContent = "";
     cell.style.width = "50px";
     cell.style.height = "50px";
     cell.style.margin = "2px";
@@ -289,27 +295,48 @@ function initMinesweeper() {
     cell.dataset.index = i;
 
     cell.onclick = function () {
+      if (gameOver || this.disabled) return;
+
       if (mineIndexes.has(i)) {
         this.innerText = "💣";
         this.style.background = "red";
         balance -= currentBet;
-        log(`💥 Mine hit! You lost $${currentBet}`);
         updateBalance();
-        endMinesweeperGame(); // Stop the game (you can define this function)
+        log(`💥 Mine hit! You lost $${currentBet}`);
+        endMinesweeperGame(grid);
+        return;
       } else {
         this.innerText = "✅";
         this.style.background = "green";
         balance += currentBet;
-        log(`🎯 Safe! You won $${currentBet}`);
         updateBalance();
+        log(`🎯 Safe! You won $${currentBet}`);
+        this.disabled = true;
       }
-      this.disabled = true;
     };
 
     grid.appendChild(cell);
     if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
   }
 }
+
+function endMinesweeperGame(grid) {
+  gameOver = true;
+  const buttons = grid.querySelectorAll("button");
+  buttons.forEach(btn => btn.disabled = true);
+
+  // Show Restart button
+  const restart = document.createElement("button");
+  restart.innerText = "🔁 Restart";
+  restart.style.marginTop = "10px";
+  restart.onclick = () => {
+    restart.remove();
+    initMinesweeper();
+  };
+  grid.appendChild(document.createElement("br"));
+  grid.appendChild(restart);
+}
+
 
     function disableAll(container) {
       const buttons = container.querySelectorAll("button");
@@ -318,6 +345,7 @@ function initMinesweeper() {
   </script>
 </body>
 </html>
+
 
 
 
