@@ -232,44 +232,75 @@ function initMinesweeper() {
   }
 
   for (let i = 0; i < total; i++) {
-    const cell = document.createElement("button");
-    cell.style.width = "50px";
-    cell.style.height = "50px";
-    cell.style.margin = "2px";
-    cell.style.fontSize = "22px";
-    cell.style.background = "#444";
-    cell.style.color = "white";
-    cell.dataset.index = i;
+  const cell = document.createElement("button");
+  cell.dataset.index = i;
+  cell.style.width = "50px";
+  cell.style.height = "50px";
+  cell.style.margin = "2px";
+  cell.style.fontSize = "22px";
+  cell.style.background = "#444";
+  cell.style.color = "white";
 
-    cell.onclick = function () {
-  const currentBet = parseInt(document.getElementById("bet").value);
-  if (isNaN(currentBet) || currentBet <= 0 || currentBet > balance) {
-    log("❌ Invalid bet.");
-    return;
-  }
+  cell.onclick = function () {
+    const index = parseInt(this.dataset.index);
+    if (mineIndexes.has(index)) {
+      this.innerText = "💣";
+      this.style.background = "red";
+      balance -= bet;
+      updateBalance();
+      log(`💥 Mine hit! You lost $${bet}`);
+
+      // Disable all buttons
+      const buttons = grid.querySelectorAll("button");
+      buttons.forEach(btn => btn.disabled = true);
+
+      // Add Restart button
+      const restartBtn = document.createElement("button");
+      restartBtn.innerText = "Restart";
+      restartBtn.style.marginTop = "10px";
+      restartBtn.onclick = initMinesweeper;
+      grid.appendChild(document.createElement("br"));
+      grid.appendChild(restartBtn);
+    } else {
+      this.innerText = "✅";
+      this.style.background = "green";
+      balance += bet;
+      updateBalance();
+      log(`🎯 Safe! You won $${bet}`);
+    }
+
+    this.disabled = true;
+  };
+
+  grid.appendChild(cell);
+  if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
+}
 
   if (mineIndexes.has(i)) {
-    this.innerText = "💣";
-    this.style.background = "red";
-    balance -= currentBet;
-    log(`💥 Mine hit! You lost $${currentBet}`);
-    revealMines(mineIndexes);
-  } else {
-    this.innerText = "✅";
-    this.style.background = "green";
-    balance += currentBet;
-    log(`🎯 Safe! You won $${currentBet}`);
-    this.disabled = true;
-  }
+  this.innerText = "💣";
+  this.style.background = "red";
+  balance -= bet;
   updateBalance();
+  log(`💥 Mine hit! You lost $${bet}`);
+
+  // Disable all cells
+  const buttons = grid.querySelectorAll("button");
+  buttons.forEach(btn => btn.disabled = true);
+
+  // Create and show restart button
+  const restartBtn = document.createElement("button");
+  restartBtn.innerText = "Restart";
+  restartBtn.style.marginTop = "10px";
+  restartBtn.onclick = initMinesweeper;
+  grid.appendChild(document.createElement("br"));
+  grid.appendChild(restartBtn);
+
+  return;
+}
 };
 
     grid.appendChild(cell);
     if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
-  }
-}
   </script>
 </body>
 </html>
-
-
