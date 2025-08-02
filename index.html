@@ -155,12 +155,12 @@
       if (saved) {
         if (savedPass !== pass) return showLoginError("❌ Wrong password.");
         balance = parseInt(saved);
-        log(`Welcome back, ${name}!`);
+        log(Welcome back, ${name}!);
       } else {
         balance = 500;
         localStorage.setItem(userKey, balance);
         localStorage.setItem(userKey + "_pass", pass);
-        log(`Welcome, ${name}! Account created.`);
+        log(Welcome, ${name}! Account created.);
       }
 
       currentUser = name;
@@ -173,13 +173,13 @@
     }
 
     function updateBalance() {
-      document.getElementById("balance").innerText = `Balance: $${balance}`;
+      document.getElementById("balance").innerText = Balance: $${balance};
       if (currentUser) localStorage.setItem("dern88_" + currentUser, balance);
     }
 
     function log(msg) {
       const logBox = document.getElementById("log");
-      logBox.innerText += `\n${msg}`;
+      logBox.innerText += \n${msg};
       logBox.scrollTop = logBox.scrollHeight;
     }
 
@@ -200,13 +200,13 @@
       if (guess < 1 || guess > 6) return log("❌ Guess must be 1 to 6.");
 
       const roll = Math.floor(Math.random() * 6) + 1;
-      log(`🎲 You guessed ${guess}. Dice rolled: ${roll}`);
+      log(🎲 You guessed ${guess}. Dice rolled: ${roll});
       if (roll === guess) {
         balance += bet;
-        log(`✅ You won $${bet}!`);
+        log(✅ You won $${bet}!);
       } else {
         balance -= bet;
-        log(`❌ You lost $${bet}.`);
+        log(❌ You lost $${bet}.);
       }
       updateBalance();
     }
@@ -248,14 +248,14 @@
       if (slots[0] === slots[1] && slots[1] === slots[2]) {
         const win = bet * 5;
         balance += win;
-        log(`🎉 JACKPOT! You won $${win} with ${slots[0]}!`);
+        log(🎉 JACKPOT! You won $${win} with ${slots[0]}!);
       } else if (slots[0] === slots[1] || slots[1] === slots[2] || slots[0] === slots[2]) {
         const win = bet * 2;
         balance += win;
-        log(`✨ Nice! You won $${win}.`);
+        log(✨ Nice! You won $${win}.);
       } else {
         balance -= bet;
-        log(`🙁 No match. You lost $${bet}.`);
+        log(🙁 No match. You lost $${bet}.);
       }
       updateBalance();
     }
@@ -265,55 +265,69 @@
 let gameOver = false;
 
 function initMinesweeper() {
-  const board = document.getElementById("minesweeper-board");
-  board.innerHTML = "";
-  board.style.display = "grid";
-  board.style.gridTemplateColumns = "repeat(5, 60px)";
-  board.style.gridTemplateRows = "repeat(5, 60px)";
-  board.style.gap = "5px";
+  const grid = document.getElementById("minesweeper-grid");
+  grid.innerHTML = "";
 
-  const bombIndex = Math.floor(Math.random() * 25);
+  const bet = parseInt(document.getElementById("bet").value);
+  if (isNaN(bet) || bet <= 0 || bet > balance) {
+    log("❌ Invalid bet.");
+    return;
+  }
+
+  const rows = 5, cols = 5, total = rows * cols, mines = 10;
+  const mineIndexes = new Set();
+  while (mineIndexes.size < mines) {
+    mineIndexes.add(Math.floor(Math.random() * total));
+  }
+
   let gameOver = false;
+  let revealed = new Set();
 
-  for (let i = 0; i < 25; i++) {
-    const tile = document.createElement("div");
-    tile.classList.add("minesweeper-tile");
-    tile.style.width = "60px";
-    tile.style.height = "60px";
-    tile.style.background = "#444";
-    tile.style.display = "flex";
-    tile.style.alignItems = "center";
-    tile.style.justifyContent = "center";
-    tile.style.fontSize = "24px";
-    tile.style.color = "white";
-    tile.style.cursor = "pointer";
+  for (let i = 0; i < total; i++) {
+    const cell = document.createElement("button");
+    cell.style.width = "50px";
+    cell.style.height = "50px";
+    cell.style.margin = "2px";
+    cell.style.fontSize = "22px";
+    cell.style.background = "#444";
+    cell.style.color = "white";
+    cell.dataset.index = i;
 
-    tile.addEventListener("click", () => {
-      if (gameOver) return;
-      if (i === bombIndex) {
-        tile.textContent = "💣";
-        tile.style.background = "red";
+    cell.onclick = function () {
+      if (gameOver || revealed.has(i)) return;
+
+      revealed.add(i);
+      this.disabled = true;
+
+      if (mineIndexes.has(i)) {
+        this.innerText = "💣";
+        this.style.background = "red";
+        balance -= bet;
+        log('💥 Mine hit! You lost $${bet}'');
         gameOver = true;
-        alert("Game Over!");
+        showRestartButton();
       } else {
-        tile.textContent = "✅";
-        tile.style.background = "green";
+        this.innerText = "✅";
+        this.style.background = "green";
+        balance += bet;
+        log('🎯 Safe! You won $${bet}'')
       }
-    });
 
-    board.appendChild(tile);
+      updateBalance();
+    };
+
+    grid.appendChild(cell);
+    if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
   }
 }
+
+    function disableAll(container) {
+      const buttons = container.querySelectorAll("button");
+      buttons.forEach(btn => btn.disabled = true);
+    }
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
 
 
 
