@@ -81,6 +81,13 @@
   <div class="mode-buttons">
     <button style="background:#222244; color:white;" onclick="setMode('dice')">Dice Game</button>
     <button style="background:#442222; color:white;" onclick="setMode('slot')">Slot Game</button>
+    <button onclick="setMode('minesweeper')" style="background-color: #336633; color: white;">Minesweeper [NEW!]</button>
+
+    <div id="minesweeper-container" style="display:none; margin-top:20px;">
+  <h3 style="color:white;">💣 Pick a Safe Tile!</h3>
+  <div id="minesweeper-grid"></div>
+</div>
+
   </div>
 
   <div class="input-area">
@@ -198,7 +205,71 @@
       }
       updateBalance();
     }
+
+function setMode(mode) {
+  document.getElementById('roll-btn').style.display = mode === 'dice' ? 'inline-block' : 'none';
+  document.getElementById('spin-btn').style.display = mode === 'slot' ? 'inline-block' : 'none';
+  document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
+  document.getElementById('minesweeper-container').style.display = mode === 'minesweeper' ? 'block' : 'none';
+  log(mode === 'minesweeper' ? "💣 Minesweeper mode activated." : "");
+  if (mode === 'minesweeper') initMinesweeper();
+}
+
+function initMinesweeper() {
+  const grid = document.getElementById("minesweeper-grid");
+  grid.innerHTML = "";
+
+  const bet = parseInt(document.getElementById("bet").value);
+  if (isNaN(bet) || bet <= 0 || bet > balance) {
+    log("❌ Invalid bet.");
+    return;
+  }
+
+  const rows = 5, cols = 5, total = rows * cols, mines = 5;
+  const mineIndexes = new Set();
+  while (mineIndexes.size < mines) {
+    mineIndexes.add(Math.floor(Math.random() * total));
+  }
+
+  for (let i = 0; i < total; i++) {
+    const cell = document.createElement("button");
+    cell.style.width = "50px";
+    cell.style.height = "50px";
+    cell.style.margin = "2px";
+    cell.style.fontSize = "22px";
+    cell.style.background = "#444";
+    cell.style.color = "white";
+    cell.dataset.index = i;
+
+    cell.onclick = function () {
+  const currentBet = parseInt(document.getElementById("bet").value);
+  if (isNaN(currentBet) || currentBet <= 0 || currentBet > balance) {
+    log("❌ Invalid bet.");
+    return;
+  }
+
+  if (mineIndexes.has(i)) {
+    this.innerText = "💣";
+    this.style.background = "red";
+    balance -= currentBet;
+    log(`💥 Mine hit! You lost $${currentBet}`);
+    revealMines(mineIndexes);
+  } else {
+    this.innerText = "✅";
+    this.style.background = "green";
+    balance += currentBet;
+    log(`🎯 Safe! You won $${currentBet}`);
+    this.disabled = true;
+  }
+  updateBalance();
+};
+
+    grid.appendChild(cell);
+    if ((i + 1) % cols === 0) grid.appendChild(document.createElement("br"));
+  }
+}
   </script>
 </body>
 </html>
+
 
