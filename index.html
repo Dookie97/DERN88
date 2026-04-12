@@ -284,7 +284,12 @@
       document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
       document.getElementById('minesweeper-container').style.display = mode === 'minesweeper' ? 'block' : 'none';
       document.getElementById('hilo-container').style.display = mode === 'hilo' ? 'block' : 'none';
-      log(mode === 'minesweeper' ? "💣 Minesweeper mode activated." : mode === 'slot' ? "🎰 Slot mode activated." : "🎲 Dice mode activated.");
+      log(
+  mode === 'minesweeper' ? "💣 Minesweeper mode activated." :
+  mode === 'slot' ? "🎰 Slot mode activated." :
+  mode === 'hilo' ? "🃏 Hi-Lo mode activated." :
+  "🎲 Dice mode activated."
+);
       if (mode === 'minesweeper') initMinesweeper();
       if (mode === 'hilo') startHilo();
     }
@@ -510,7 +515,6 @@ function playHilo(type) {
   
 </body>
 </html>
-
 
 
 
