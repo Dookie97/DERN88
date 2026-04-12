@@ -93,6 +93,74 @@
       font-size: 22px;
       padding: 10px 20px;
     }
+    .card-wrapper { perspective:1000px; display:inline-block; }
+
+.card {
+  width:120px;
+  height:170px;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform 0.6s;
+}
+
+.card.flip { transform:rotateY(180deg); }
+
+.card-face {
+  position:absolute;
+  width:100%;
+  height:100%;
+  border-radius:12px;
+  backface-visibility:hidden;
+}
+
+.front { background:white; color:black; }
+.back {
+  background: #444;
+  transform: rotateY(180deg);
+}
+.red { color:red; }
+
+.top { position:absolute; top:5px; left:10px; }
+.bottom { position:absolute; bottom:5px; right:10px; transform:rotate(180deg); }
+.center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:30px; }
+
+.hilo-buttons {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.hilo-btn {
+  width: 140px;              /* ✅ smaller */
+  padding: 12px;
+  font-size: 18px;
+  border-radius: 12px;
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-weight: bold;
+
+  /* ✅ smooth gradient */
+  background-size: 200% 200%;
+  transition: all 0.25s ease;
+}
+
+/* Higher (green gradient like modern UI) */
+.hilo-btn.high {
+  background: linear-gradient(135deg, #00c853, #00e676);
+}
+
+/* Lower (red gradient like spin style) */
+.hilo-btn.low {
+  background: linear-gradient(135deg, #ff1744, #ff5252);
+}
+
+/* ✅ CLICK EFFECT */
+.hilo-btn:active {
+  transform: scale(0.95);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
   </style>
 </head>
 <body>
@@ -115,11 +183,35 @@
   <button style="background:#222244; color:white;" onclick="setMode('dice')">Dice Game</button>
   <button style="background:#442222; color:white;" onclick="setMode('slot')">Slot Game</button>
   <button onclick="setMode('minesweeper')" style="background-color: #336633; color: white;">Minesweeper [NEW!]</button>
+  <button onclick="setMode('hilo')" style="background:#663399; color:white;">Hi-Lo</button>
 </div>
 
 <div id="minesweeper-container" style="display:none; margin-top:20px;">
   <h3 style="color:white;">💣 Pick a Safe Tile!</h3>
   <div id="minesweeper-grid"></div>
+</div>
+
+<div id="hilo-container" style="display:none; margin-top:20px;">
+  <h3>🃏 Hi-Lo</h3>
+
+  <div class="card-wrapper">
+    <div class="card flip" id="hilo-card">
+
+      <div class="card-face front">
+        <div class="top"></div>
+        <div class="center"></div>
+        <div class="bottom"></div>
+      </div>
+
+      <div class="card-face back"></div>
+
+    </div>
+  </div>
+
+  <br>
+
+  <button class="hilo-btn high" onclick="playHilo('high')">⬆ Higher</button>
+  <button class="hilo-btn low" onclick="playHilo('low')">⬇ Lower</button>
 </div>
 
   <div class="input-area">
@@ -191,8 +283,10 @@
       document.getElementById('spin-btn').style.display = mode === 'slot' ? 'inline-block' : 'none';
       document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
       document.getElementById('minesweeper-container').style.display = mode === 'minesweeper' ? 'block' : 'none';
+      document.getElementById('hilo-container').style.display = mode === 'hilo' ? 'block' : 'none';
       log(mode === 'minesweeper' ? "💣 Minesweeper mode activated." : mode === 'slot' ? "🎰 Slot mode activated." : "🎲 Dice mode activated.");
       if (mode === 'minesweeper') initMinesweeper();
+      if (mode === 'hilo') startHilo();
     }
 
     function rollDice() {
@@ -322,9 +416,110 @@
       const buttons = container.querySelectorAll("button");
       buttons.forEach(btn => btn.disabled = true);
     }
+
+    // ===== HILO =====
+const hiloSuits = [
+  { symbol: "♠", color: "black" },
+  { symbol: "♥", color: "red" },
+  { symbol: "♦", color: "red" },
+  { symbol: "♣", color: "black" }
+];
+
+const hiloValues = [
+  { name: "A", value: 1 },{ name: "2", value: 2 },{ name: "3", value: 3 },
+  { name: "4", value: 4 },{ name: "5", value: 5 },{ name: "6", value: 6 },
+  { name: "7", value: 7 },{ name: "8", value: 8 },{ name: "9", value: 9 },
+  { name: "10", value: 10 },{ name: "J", value: 11 },
+  { name: "Q", value: 12 },{ name: "K", value: 13 }
+];
+
+let hiloDeck = [];
+let currentHiloCard = null;
+
+function createHiloDeck() {
+  hiloDeck = [];
+  for (let s of hiloSuits) {
+    for (let v of hiloValues) {
+      hiloDeck.push({...v, ...s});
+    }
+  }
+}
+
+function drawHiloCard() {
+  if (!hiloDeck.length) createHiloDeck();
+  return hiloDeck.splice(Math.floor(Math.random()*hiloDeck.length),1)[0];
+}
+
+function updateHiloCard(card) {
+  const el = document.getElementById("hilo-card");
+  const front = el.querySelector(".front");
+
+  front.className = "card-face front " + (card.color === "red" ? "red" : "");
+
+  el.querySelector(".top").innerText = card.name + card.symbol;
+  el.querySelector(".center").innerText = card.symbol;
+  el.querySelector(".bottom").innerText = card.name + card.symbol;
+}
+
+function startHilo() {
+  createHiloDeck();
+  currentHiloCard = drawHiloCard();
+  updateHiloCard(currentHiloCard);
+}
+
+function playHilo(type) {
+  const bet = parseInt(document.getElementById("bet").value);
+  if (isNaN(bet) || bet <= 0 || bet > balance) {
+    log("❌ Invalid bet.");
+    return;
+  }
+
+  const cardEl = document.getElementById("hilo-card");
+
+  // 👉 STEP 1: flip TO BACK
+  cardEl.classList.add("flip");
+
+  setTimeout(() => {
+    const next = drawHiloCard();
+
+    const win =
+      (type === "high" && next.value > currentHiloCard.value) ||
+      (type === "low" && next.value < currentHiloCard.value);
+
+    if (win) {
+      balance += bet;
+      log(`🃏 ${next.name}${next.symbol} → WIN $${bet}`);
+    } else {
+      balance -= bet;
+      log(`🃏 ${next.name}${next.symbol} → LOSE $${bet}`);
+    }
+
+    updateBalance();
+
+    currentHiloCard = next;
+    updateHiloCard(currentHiloCard);
+
+    // 👉 STEP 2: flip BACK TO FRONT (reveal card)
+    setTimeout(() => {
+      cardEl.classList.remove("flip");
+    }, 100);
+
+  }, 600); // match animation speed
+}
   </script>
+  
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 
 
 
