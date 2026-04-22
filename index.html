@@ -9,6 +9,75 @@
       background-color: #1c1c2c;
       font-family: Arial, sans-serif;
       color: white;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .header {
+      background-color: #2a2a3c;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .header h1 {
+      margin: 0;
+      font-family: Impact, sans-serif;
+      font-size: 36px;
+      color: #98FF98;
+    }
+    .header .balance {
+      font-size: 24px;
+      color: gold;
+    }
+    .content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .sidebar {
+      width: 200px;
+      background-color: #2a2a3c;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.5);
+      overflow-y: auto;
+    }
+    .sidebar h2 {
+      color: #98FF98;
+      margin-bottom: 20px;
+    }
+    .sidebar button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    }
+    .sidebar button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+    }
+    .sidebar button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .sidebar button:nth-child(2) { background: #222244; } /* dice */
+    .sidebar button:nth-child(3) { background: #442222; } /* slot */
+    .sidebar button:nth-child(4) { background: #336633; } /* minesweeper */
+    .sidebar button:nth-child(5) { background: #663399; } /* hilo */
+    .sidebar button:nth-child(6) { background: #ff4d6d; } /* balloon */
+    .main {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
       text-align: center;
     }
     h1 {
@@ -22,23 +91,30 @@
       color: gold;
       margin-bottom: 10px;
     }
-    .mode-buttons button,
-    .game-buttons button {
-      font-size: 20px;
-      padding: 10px 20px;
-      margin: 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 10px;
-    }
+
     .game-buttons {
       margin: 20px 0;
     }
-    #roll-btn, #spin-btn {
+    #roll-btn, #spin-btn, #pump-btn, #cash-btn {
       font-size: 28px;
       width: 300px;
       padding: 20px;
       margin: 20px auto;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    #roll-btn:hover, #spin-btn:hover, #pump-btn:hover, #cash-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    #roll-btn:active, #spin-btn:active, #pump-btn:active, #cash-btn:active {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
     }
     .output {
       background: black;
@@ -68,8 +144,22 @@
       font-size: 18px;
       padding: 10px 20px;
       margin-top: 20px;
-      background: gray;
+      background: linear-gradient(135deg, #666, #444);
       color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+    #exit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+    #exit-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     #login-screen {
       position: fixed;
@@ -92,6 +182,22 @@
     #login-screen button {
       font-size: 22px;
       padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: linear-gradient(135deg, #98FF98, #70DD70);
+      color: #1c1c2c;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+    #login-screen button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+    }
+    #login-screen button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .card-wrapper { perspective:1000px; display:inline-block; }
 
@@ -132,7 +238,7 @@
 }
 
 .hilo-btn {
-  width: 140px;              /* ✅ smaller */
+  width: 140px;
   padding: 12px;
   font-size: 18px;
   border-radius: 12px;
@@ -140,10 +246,18 @@
   color: white;
   cursor: pointer;
   font-weight: bold;
-
-  /* ✅ smooth gradient */
   background-size: 200% 200%;
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+.hilo-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.hilo-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
 /* Higher (green gradient like modern UI) */
@@ -174,17 +288,22 @@
   </div>
 
 
-  <h1>🎲 DERN88 🎰</h1>
-  <div class="balance" id="balance">Balance: $0</div>
-  </script>
+  <div class="header">
+    <h1>🎲 DERN88 🎰</h1>
+    <div class="balance" id="balance">Balance: $0</div>
+  </div>
 
+  <div class="content">
+    <div class="sidebar">
+      <h2>Games</h2>
+      <button onclick="setMode('dice')">🎲 Dice Game</button>
+      <button onclick="setMode('slot')">🎰 Slot Game</button>
+      <button onclick="setMode('minesweeper')">💣 Minesweeper</button>
+      <button onclick="setMode('hilo')">🃏 Hi-Lo</button>
+      <button onclick="setMode('balloon')">🎈 Balloon</button>
+    </div>
 
-  <div class="mode-buttons">
-  <button style="background:#222244; color:white;" onclick="setMode('dice')">Dice Game</button>
-  <button style="background:#442222; color:white;" onclick="setMode('slot')">Slot Game</button>
-  <button onclick="setMode('minesweeper')" style="background-color: #336633; color: white;">Minesweeper</button>
-  <button onclick="setMode('hilo')" style="background:#663399; color:white;">Hi-Lo [NEW!]</button>
-</div>
+    <div class="main">
 
 <div id="minesweeper-container" style="display:none; margin-top:20px;">
   <h3 style="color:white;">💣 Pick a Safe Tile!</h3>
@@ -214,6 +333,24 @@
   <button class="hilo-btn low" onclick="playHilo('low')">⬇ Lower</button>
 </div>
 
+<div id="balloon-container" style="display:none; margin-top:20px;">
+  <h3>🎈 Balloon</h3>
+
+  <svg id="balloon-svg" viewBox="0 0 100 140" width="160">
+    <ellipse id="balloon-body" cx="50" cy="50" rx="28" ry="35" fill="#ff4d6d"/>
+    <ellipse cx="42" cy="40" rx="6" ry="10" fill="rgba(255,255,255,0.3)"/>
+    <polygon points="45,85 55,85 50,95" fill="#c9184a"/>
+    <line x1="50" y1="95" x2="50" y2="140" stroke="#aaa" stroke-width="2"/>
+  </svg>
+
+  <h2 id="balloon-mult">1.00x</h2>
+
+  <button onclick="pumpBalloon()" id="pump-btn" disabled style="background:#3498db; color:white;">PUMP 🎈</button>
+  <button onclick="cashBalloon()" id="cash-btn" disabled style="background:#f39c12; color:white;">CASH OUT</button>
+
+  <h3 id="balloon-status">Ready</h3>
+</div>
+
   <div class="input-area">
     <div>
       <label>Bet Amount: <input type="number" id="bet" value="50"></label>
@@ -233,6 +370,9 @@
   <div class="output" id="log">🎲 Dice mode activated.</div>
 
   <button id="exit-btn" onclick="window.close()">Exit</button>
+
+    </div>
+  </div>
 
   <script>
     let balance = 500;
@@ -284,10 +424,12 @@
       document.getElementById('guess-area').style.display = mode === 'dice' ? 'block' : 'none';
       document.getElementById('minesweeper-container').style.display = mode === 'minesweeper' ? 'block' : 'none';
       document.getElementById('hilo-container').style.display = mode === 'hilo' ? 'block' : 'none';
+      document.getElementById("balloon-container").style.display = mode === "balloon" ? "block" : "none";
       log(
   mode === 'minesweeper' ? "💣 Minesweeper mode activated." :
   mode === 'slot' ? "🎰 Slot mode activated." :
   mode === 'hilo' ? "🃏 Hi-Lo mode activated." :
+  mode === 'balloon' ? "🎈 Balloon mode activated." :
   "🎲 Dice mode activated."
 );
       if (mode === 'minesweeper') initMinesweeper();
@@ -511,24 +653,164 @@ function playHilo(type) {
 
   }, 600); // match animation speed
 }
+
+let balloonMultiplier = 1;
+let balloonCrash = 0;
+let balloonRunning = false;
+let balloonCashed = false;
+let balloonPumps = 0;
+let balloonBetLocked = false;
+
+function randomCrash() {
+  let r = Math.random();
+
+  if (r < 0.60) return 1 + Math.random() * 0.8;   // 1.0x - 1.8x (60%)
+  if (r < 0.85) return 1.8 + Math.random() * 1.5;  // 1.8x - 3.3x (25%)
+  if (r < 0.97) return 3.3 + Math.random() * 3;    // 3.3x - 6.3x (12%)
+  return 6 + Math.random() * 10;                   // 6x - 16x (3% rare)
+}
+
+  balloonMultiplier = 1;
+  balloonCrash = randomCrash();
+  balloonRunning = true;
+  balloonCashed = false;
+  balloonLocked = false;
+  balloonPumps = 0;
+
+  document.getElementById("pump-btn").disabled = false;
+  document.getElementById("cash-btn").disabled = false;
+
+  document.getElementById("balloon-status").innerText = "Pump the balloon!";
+  updateBalloonUI();
+
+  balloonMultiplier = 1;
+  balloonCrash = randomCrash();
+  balloonRunning = true;
+  balloonCashed = false;
+  balloonPumps = 0;
+
+  document.getElementById("pump-btn").disabled = false;
+  document.getElementById("cash-btn").disabled = false;
+
+  document.getElementById("balloon-status").innerText = "Pump the balloon!";
+  updateBalloonUI();
+
+function pumpBalloon() {
+  if (balloonCashed || balloonLocked) return;
+
+  if (!balloonRunning) {
+    // Start the game
+    const bet = parseInt(document.getElementById("bet").value);
+    if (isNaN(bet) || bet <= 0 || bet > balance) {
+      log("❌ Invalid bet for Balloon");
+      return;
+    }
+    balloonRunning = true;
+    balloonBetLocked = true;
+    balloonCrash = randomCrash();
+    document.getElementById("cash-btn").disabled = false;
+    document.getElementById("bet").disabled = true;
+    document.getElementById("bet").style.opacity = "0.5";
+    document.getElementById("balloon-status").innerText = "Pumping!";
+    log("🎈 Balloon game started! Bet locked at $" + bet);
+  }
+
+  balloonPumps++;
+
+  balloonMultiplier += 0.15 + balloonPumps * 0.02;
+  updateBalloonUI();
+
+  let scale = 1 + balloonMultiplier / 10;
+  let wobble = Math.sin(balloonPumps) * 0.03;
+
+  document.getElementById("balloon-svg").style.transform =
+    `scale(${scale + wobble}, ${scale - wobble})`;
+
+  const body = document.getElementById("balloon-body");
+  if (balloonMultiplier > 1.8) body.setAttribute("fill", "#ff7b00");
+  if (balloonMultiplier > 2.5) body.setAttribute("fill", "#ff2e2e");
+
+  document.getElementById("balloon-status").innerText = `Multiplier: ${balloonMultiplier.toFixed(2)}x`;
+
+  // ⚠️ LOCK FIRST, THEN CRASH
+  if (balloonMultiplier >= balloonCrash) {
+    balloonLocked = true;
+    crashBalloon();
+    return;
+  }
+}
+
+function cashBalloon() {
+  if (!balloonRunning || balloonCashed || balloonLocked) return;
+
+  balloonCashed = true;
+  balloonRunning = false;
+  balloonLocked = true;
+
+  let bet = parseInt(document.getElementById("bet").value);
+  let profit = (bet * balloonMultiplier) - bet;
+
+  balance += profit;
+  updateBalance();
+
+  document.getElementById("balloon-status").innerText =
+    `💰 Cashed out at ${balloonMultiplier.toFixed(2)}x (+$${profit.toFixed(2)})`;
+
+  log(`💰 Cashout at ${balloonMultiplier.toFixed(2)}x with ${balloonPumps} pumps (+$${profit.toFixed(2)})`);
+  endBalloon();
+}
+
+function crashBalloon() {
+  if (!balloonRunning) return;
+
+  balloonRunning = false;
+  balloonLocked = true;
+
+  const bet = parseInt(document.getElementById("bet").value);
+
+  balance -= bet;
+  updateBalance();
+
+  document.getElementById("balloon-status").innerText =
+    `💥 CRASHED at ${balloonCrash.toFixed(2)}x (lost $${bet})`;
+
+  log(`💥 Balloon crashed at ${balloonCrash.toFixed(2)}x`);
+
+  endBalloon();
+}
+
+function endBalloon() {
+  setTimeout(() => {
+    resetBalloon();
+  }, 2000);
+}
+
+function updateBalloonUI() {
+  document.getElementById("balloon-mult").innerText =
+    balloonMultiplier.toFixed(2) + "x";
+}
+
+function resetBalloon() {
+  balloonMultiplier = 1;
+  balloonCrash = 0;
+  balloonRunning = false;
+  balloonCashed = false;
+  balloonLocked = false;
+  balloonBetLocked = false;
+  balloonPumps = 0;
+
+  document.getElementById("pump-btn").disabled = false;
+  document.getElementById("cash-btn").disabled = true;
+  document.getElementById("bet").disabled = false;
+  document.getElementById("bet").style.opacity = "1";
+
+  document.getElementById("balloon-body").setAttribute("fill", "#ff4d6d");
+  document.getElementById("balloon-svg").style.transform = "scale(1)";
+  document.getElementById("balloon-mult").innerText = "1.00x";
+  document.getElementById("balloon-status").innerText = "Click Pump to start!";
+}
+
   </script>
   
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
