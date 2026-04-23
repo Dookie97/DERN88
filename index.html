@@ -74,6 +74,7 @@
     .sidebar button:nth-child(4) { background: #336633; } /* minesweeper */
     .sidebar button:nth-child(5) { background: #663399; } /* hilo */
     .sidebar button:nth-child(6) { background: #ff4d6d; } /* balloon */
+    .sidebar button:nth-child(7) { background: #ffb700; } /* keno */
     .main {
       flex: 1;
       padding: 20px;
@@ -275,6 +276,274 @@
   transform: scale(0.95);
   box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
+
+/* KENO ANIMATIONS */
+@keyframes kenoPopIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+    box-shadow: 0 0 0 rgba(152, 255, 152, 0);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(152, 255, 152, 0.8);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(152, 255, 152, 0.4);
+  }
+}
+
+@keyframes kenoPulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(152, 255, 152, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(152, 255, 152, 0.8);
+  }
+}
+
+/* KENO STYLES */
+.keno-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 8px;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+.keno-number {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 2px solid #444;
+  background: #2a2a3c;
+  color: #ccc;
+  font-size: 1em;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.keno-number:hover {
+  border-color: #98FF98;
+  background: #333344;
+  color: #98FF98;
+}
+
+.keno-number.selected {
+  background: #98FF98;
+  color: #1c1c2c;
+  border-color: #98FF98;
+  box-shadow: 0 4px 12px rgba(152, 255, 152, 0.4);
+  font-weight: bold;
+}
+
+.keno-number.drawn {
+  background: #98FF98;
+  color: #1c1c2c;
+  border-color: #98FF98;
+  animation: kenoPopIn 0.5s ease-out;
+  font-weight: bold;
+  box-shadow: 0 0 15px rgba(152, 255, 152, 0.5);
+}
+
+.keno-number.matched {
+  background: #98FF98;
+  color: #1c1c2c;
+  border-color: #98FF98;
+  animation: kenoPulse 0.6s ease-in-out;
+  box-shadow: 0 0 20px rgba(152, 255, 152, 0.8);
+  font-weight: bold;
+  font-size: 1.2em;
+}
+
+.keno-number.missed {
+  background: #443333;
+  color: #ff6b6b;
+  border-color: #dc3545;
+  opacity: 0.8;
+}
+
+.keno-info {
+  background: #2a2a3c;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px auto;
+  max-width: 500px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+  text-align: center;
+  border: 1px solid #444;
+}
+
+.keno-info-item {
+  background: #1c1c2c;
+  padding: 10px;
+  border-radius: 6px;
+  border-left: 3px solid #98FF98;
+}
+
+.keno-info-label {
+  font-size: 0.8em;
+  color: #888;
+  margin-bottom: 5px;
+}
+
+.keno-info-value {
+  font-size: 1.3em;
+  font-weight: bold;
+  color: #98FF98;
+}
+
+.keno-drawn {
+  background: #2a2a3c;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 15px auto;
+  max-width: 500px;
+  display: none !important;
+  border-left: 4px solid #98FF98;
+  border: 1px solid #444;
+}
+
+.keno-drawn.show {
+  display: block;
+  animation: slideIn 0.4s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.keno-drawn-label {
+  font-weight: bold;
+  color: #98FF98;
+  margin-bottom: 10px;
+}
+
+.keno-drawn-numbers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keno-drawn-num {
+  background: #98FF98;
+  color: #1c1c2c;
+  padding: 6px 10px;
+  border-radius: 15px;
+  font-weight: bold;
+  font-size: 0.9em;
+  animation: kenoPopIn 0.4s ease-out;
+}
+
+.keno-controls {
+  margin: 20px auto;
+  max-width: 500px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.keno-btn {
+  flex: 1;
+  min-width: 80px;
+  padding: 15px 20px;
+  background: #00AA88;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.keno-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.keno-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.keno-btn:disabled {
+  background: #444;
+  color: #666;
+  border-color: #555;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.keno-results {
+  background: #2a2a3c;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 15px auto;
+  max-width: 500px;
+  text-align: center;
+  display: none;
+  border: 2px solid #444;
+}
+
+.keno-results.show {
+  display: block;
+  animation: slideIn 0.4s ease-out;
+}
+
+.keno-results.win {
+  background: #1a3a1a;
+  border: 2px solid #98FF98;
+}
+
+.keno-results.lose {
+  background: #3a1a1a;
+  border: 2px solid #ff6b6b;
+}
+
+.keno-results-title {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.keno-results.win .keno-results-title {
+  color: #98FF98;
+}
+
+.keno-results.lose .keno-results-title {
+  color: #ff6b6b;
+}
+
+.keno-results-text {
+  font-size: 1em;
+  margin: 8px 0;
+  color: #ccc;
+}
+
+.keno-payout {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #98FF98;
+  margin-top: 10px;
+}
   </style>
 </head>
 <body>
@@ -301,6 +570,7 @@
       <button onclick="setMode('minesweeper')">💣 Minesweeper</button>
       <button onclick="setMode('hilo')">🃏 Hi-Lo</button>
       <button onclick="setMode('balloon')">🎈 Balloon</button>
+      <button onclick="setMode('keno')">🎫 Keno</button>
     </div>
 
     <div class="main">
@@ -331,6 +601,39 @@
 
   <button class="hilo-btn high" onclick="playHilo('high')">⬆ Higher</button>
   <button class="hilo-btn low" onclick="playHilo('low')">⬇ Lower</button>
+</div>
+
+<div id="keno-container" style="display:none; margin-top:20px;">
+  <h3>🎫 Keno </h3>
+  <div class="keno-info">
+    <div class="keno-info-item">
+      <div class="keno-info-label">Selected</div>
+      <div class="keno-info-value" id="keno-selected">0</div>
+    </div>
+    <div class="keno-info-item">
+      <div class="keno-info-label">Drawn</div>
+      <div class="keno-info-value" id="keno-drawn-count">0</div>
+    </div>
+    <div class="keno-info-item">
+      <div class="keno-info-label">Matched</div>
+      <div class="keno-info-value" id="keno-matched">0</div>
+    </div>
+    <div class="keno-info-item">
+      <div class="keno-info-label">Win Multiplier</div>
+      <div class="keno-info-value" id="keno-multiplier">0x</div>
+    </div>
+  </div>
+  <div class="keno-grid" id="keno-grid"></div>
+  <div class="keno-controls">
+    <button class="keno-btn" onclick="kenoClearSelection()">Clear</button>
+    <button class="keno-btn" onclick="kenoRandomPick()">Quick Pick</button>
+    <button class="keno-btn" id="keno-draw-btn" onclick="kenoDrawNumbers()" disabled>Draw</button>
+  </div>
+  <div class="keno-drawn" id="keno-drawn-display">
+    <div class="keno-drawn-label">Drawn Numbers:</div>
+    <div class="keno-drawn-numbers" id="keno-drawn-list"></div>
+  </div>
+  <div class="keno-results" id="keno-results"></div>
 </div>
 
 <div id="balloon-container" style="display:none; margin-top:20px;">
@@ -425,15 +728,18 @@
       document.getElementById('minesweeper-container').style.display = mode === 'minesweeper' ? 'block' : 'none';
       document.getElementById('hilo-container').style.display = mode === 'hilo' ? 'block' : 'none';
       document.getElementById("balloon-container").style.display = mode === "balloon" ? "block" : "none";
+      document.getElementById("keno-container").style.display = mode === "keno" ? "block" : "none";
       log(
   mode === 'minesweeper' ? "💣 Minesweeper mode activated." :
   mode === 'slot' ? "🎰 Slot mode activated." :
   mode === 'hilo' ? "🃏 Hi-Lo mode activated." :
   mode === 'balloon' ? "🎈 Balloon mode activated." :
+  mode === 'keno' ? "🎰 Keno mode activated." :
   "🎲 Dice mode activated."
 );
       if (mode === 'minesweeper') initMinesweeper();
       if (mode === 'hilo') startHilo();
+      if (mode === 'keno') initKeno();
     }
 
     function rollDice() {
@@ -808,6 +1114,173 @@ function resetBalloon() {
   document.getElementById("balloon-svg").style.transform = "scale(1)";
   document.getElementById("balloon-mult").innerText = "1.00x";
   document.getElementById("balloon-status").innerText = "Click Pump to start!";
+}
+
+// ===== KENO =====
+const KENO_TOTAL = 40;
+const KENO_MAX_SELECT = 10;
+const KENO_DRAW_COUNT = 12;
+const KENO_PAYOUT = {
+  0: 0, 1: 0, 2: 0,
+  3: 1, 4: 3, 5: 10,
+  6: 30, 7: 100, 8: 300,
+  9: 800, 10: 2000
+};
+
+let kenoSelected = new Set();
+let kenoDrawn = new Set();
+let kenoGameActive = false;
+
+function initKeno() {
+  const grid = document.getElementById('keno-grid');
+  grid.innerHTML = '';
+  
+  for (let i = 1; i <= KENO_TOTAL; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'keno-number';
+    btn.textContent = i;
+    btn.id = `keno-${i}`;
+    btn.onclick = () => kenoToggleNumber(i);
+    grid.appendChild(btn);
+  }
+  
+  kenoUpdateUI();
+}
+
+function kenoToggleNumber(num) {
+  if (kenoGameActive) return;
+  
+  if (kenoSelected.has(num)) {
+    kenoSelected.delete(num);
+  } else {
+    if (kenoSelected.size < KENO_MAX_SELECT) {
+      kenoSelected.add(num);
+    } else {
+      log(`❌ Maximum ${KENO_MAX_SELECT} numbers can be selected!`);
+      return;
+    }
+  }
+  kenoUpdateUI();
+}
+
+function kenoClearSelection() {
+  if (kenoGameActive) return;
+  kenoSelected.clear();
+  kenoUpdateUI();
+}
+
+function kenoRandomPick() {
+  if (kenoGameActive) return;
+  kenoSelected.clear();
+  while (kenoSelected.size < KENO_MAX_SELECT) {
+    kenoSelected.add(Math.floor(Math.random() * KENO_TOTAL) + 1);
+  }
+  kenoUpdateUI();
+}
+
+function kenoDrawNumbers() {
+  if (kenoSelected.size === 0) {
+    log("❌ Select at least 1 number!");
+    return;
+  }
+  
+  const bet = parseInt(document.getElementById('bet').value);
+  if (isNaN(bet) || bet <= 0 || bet > balance) {
+    log("❌ Invalid bet!");
+    return;
+  }
+  
+  kenoGameActive = true;
+  kenoDrawn.clear();
+  
+  while (kenoDrawn.size < KENO_DRAW_COUNT) {
+    kenoDrawn.add(Math.floor(Math.random() * KENO_TOTAL) + 1);
+  }
+  
+  kenoDisplayResults(bet);
+}
+
+function kenoDisplayResults(bet) {
+  const matched = Array.from(kenoSelected).filter(n => kenoDrawn.has(n));
+  const matchCount = matched.length;
+  const multiplier = KENO_PAYOUT[matchCount] || 0;
+  const winnings = (multiplier > 0) ? bet * multiplier : 0;
+  
+  // Update balance
+  if (winnings > 0) {
+    balance += winnings - bet;
+    log(`🎰 Keno: Matched ${matchCount} numbers! Won $${winnings}!`);
+  } else {
+    balance -= bet;
+    log(`🎰 Keno: Matched ${matchCount} numbers. Lost $${bet}.`);
+  }
+  updateBalance();
+  
+  // Update UI to show drawn numbers and diamonds
+  kenoUpdateUI();
+  
+  // Display results
+  const resultsDiv = document.getElementById('keno-results');
+  const isWin = winnings > 0;
+  
+  resultsDiv.className = `keno-results show ${isWin ? 'win' : 'lose'}`;
+  resultsDiv.innerHTML = `
+    <div class="keno-results-title">${isWin ? '🎉 YOU WIN!' : '😢 Better Luck Next Time'}</div>
+    <div class="keno-results-text">Matched: <strong>${matchCount} / ${kenoSelected.size}</strong></div>
+    <div class="keno-results-text">Multiplier: <strong>${multiplier}x</strong></div>
+  `;
+  
+  // Disable draw button and show new game button
+  document.getElementById('keno-draw-btn').disabled = true;
+  
+  setTimeout(() => kenoResetGame(), 3000);
+}
+
+function kenoResetGame() {
+  kenoSelected.clear();
+  kenoDrawn.clear();
+  kenoGameActive = false;
+  document.getElementById('keno-results').classList.remove('show');
+  kenoUpdateUI();
+}
+
+function kenoUpdateUI() {
+  document.getElementById('keno-selected').textContent = kenoSelected.size;
+  document.getElementById('keno-drawn-count').textContent = kenoDrawn.size;
+  
+  const matched = Array.from(kenoSelected).filter(n => kenoDrawn.has(n)).length;
+  document.getElementById('keno-matched').textContent = matched;
+  
+  const mult = KENO_PAYOUT[matched] || 0;
+  document.getElementById('keno-multiplier').textContent = `${mult}x`;
+  
+  // Update button styles
+  for (let i = 1; i <= KENO_TOTAL; i++) {
+    const btn = document.getElementById(`keno-${i}`);
+    btn.classList.remove('selected', 'drawn', 'matched', 'missed');
+    
+    // Determine text content (add diamond emoji for matched)
+    let displayText = i;
+    
+    if (kenoDrawn.has(i)) {
+      if (kenoSelected.has(i)) {
+        btn.classList.add('matched');
+        displayText = '💎';
+      } else {
+        btn.classList.add('drawn');
+      }
+    } else if (kenoSelected.has(i)) {
+      if (kenoGameActive) {
+        btn.classList.add('missed');
+      } else {
+        btn.classList.add('selected');
+      }
+    }
+    
+    btn.textContent = displayText;
+  }
+  
+  document.getElementById('keno-draw-btn').disabled = kenoSelected.size === 0 || kenoGameActive;
 }
 
   </script>
