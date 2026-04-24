@@ -75,6 +75,7 @@
     .sidebar button:nth-child(5) { background: #663399; } /* hilo */
     .sidebar button:nth-child(6) { background: #ff4d6d; } /* balloon */
     .sidebar button:nth-child(7) { background: #ffb700; } /* keno */
+    .sidebar button:nth-child(8) { background: #666666; } /* limbo */
     .main {
       flex: 1;
       padding: 20px;
@@ -117,17 +118,21 @@
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
     }
-    .output {
+.output {
       background: black;
       color: lime;
       font-family: Consolas, monospace;
-      padding: 10px;
+      padding: 15px;
       margin: 20px auto;
-      width: 80%;
-      height: 150px;
+      width: 85%;
+      height: 180px;
       overflow-y: auto;
       white-space: pre-wrap;
       border-radius: 10px;
+      border: 1px solid #333;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+      font-size: 14px;
+      line-height: 1.4;
     }
     .input-area {
       margin: 10px;
@@ -136,6 +141,33 @@
       font-size: 20px;
       width: 100px;
       margin: 5px;
+    }
+    .input-area div {
+      background: #2a2a3c;
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin: 8px auto;
+      width: fit-content;
+      border: 1px solid #444;
+      display: inline-block;
+    }
+    .input-area label {
+      color: #98FF98;
+      font-weight: bold;
+    }
+    .input-area input {
+      background: #1c1c2c;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 5px;
+      padding: 8px 10px;
+      margin-left: 10px;
+      font-family: Arial, sans-serif;
+    }
+    .input-area input:focus {
+      outline: none;
+      border-color: #98FF98;
+      box-shadow: 0 0 10px rgba(152, 255, 152, 0.3);
     }
     .slot-display {
       font-size: 64px;
@@ -545,6 +577,241 @@
   margin-top: 10px;
 }
 
+/* LIMBO ANIMATIONS */
+@keyframes limboPopIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes limboGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
+  }
+  50% {
+    text-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor;
+  }
+}
+
+/* LIMBO STYLES */
+#limbo-container {
+  margin-top: 20px;
+}
+
+.limbo-selector {
+  background: #2a2a3c;
+  padding: 25px;
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 700px;
+  border: 1px solid #444;
+}
+
+.limbo-title {
+  font-size: 1em;
+  color: #98FF98;
+  margin-bottom: 15px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.limbo-input-group {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.limbo-custom-input {
+  background: #1c1c2c;
+  border: 2px solid #555;
+  color: white;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  width: 120px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.limbo-custom-input:focus {
+  outline: none;
+  border-color: #00AA88;
+  box-shadow: 0 0 15px rgba(0, 170, 136, 0.4);
+}
+
+.limbo-presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.limbo-preset-btn {
+  padding: 10px 15px;
+  font-size: 14px;
+  border: 1px solid #555;
+  background: #1c1c2c;
+  color: #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.limbo-preset-btn:hover {
+  border-color: #98FF98;
+  color: #98FF98;
+  box-shadow: 0 0 8px rgba(152, 255, 152, 0.3);
+}
+
+.limbo-multipliers {
+  display: none;
+}
+
+.limbo-result-display {
+  background: #1c1c2c;
+  padding: 40px 30px;
+  border-radius: 12px;
+  margin: 25px auto;
+  max-width: 600px;
+  border: 2px solid #444;
+  display: none;
+  text-align: center;
+}
+
+.limbo-result-display.show {
+  display: block;
+}
+
+.limbo-target {
+  font-size: 1.1em;
+  color: #aaa;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.limbo-generated {
+  font-size: 5em;
+  font-weight: bold;
+  margin: 30px 0;
+  animation: limboPopIn 0.6s ease-out, limboGlow 1s ease-in-out;
+  transition: color 0.3s ease;
+}
+
+.limbo-generated.win {
+  color: #00ff88;
+  text-shadow: 0 0 20px #00ff88, 0 0 40px #00ff88, 0 0 60px rgba(0, 255, 136, 0.5);
+}
+
+.limbo-generated.lose {
+  color: #ff4466;
+  text-shadow: 0 0 20px #ff4466, 0 0 40px #ff4466, 0 0 60px rgba(255, 68, 102, 0.5);
+}
+
+.limbo-message {
+  font-size: 1.8em;
+  font-weight: bold;
+  margin-top: 30px;
+}
+
+.limbo-message.win {
+  color: #00ff88;
+}
+
+.limbo-message.lose {
+  color: #ff4466;
+}
+
+.limbo-controls {
+  margin: 25px auto;
+  max-width: 600px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.limbo-play-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #00AA88, #00cc99);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.limbo-play-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.limbo-play-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.limbo-play-btn:disabled {
+  background: #444;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.limbo-reset-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 15px 30px;
+  background: linear-gradient(135deg, #666, #888);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.limbo-reset-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.limbo-reset-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.limbo-reset-btn:disabled {
+  background: #444;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 
 
   </style>
@@ -574,6 +841,7 @@
       <button onclick="setMode('hilo')">🃏 Hi-Lo</button>
       <button onclick="setMode('balloon')">🎈 Balloon</button>
       <button onclick="setMode('keno')">🎫 Keno</button>
+      <button onclick="setMode('limbo')">📉 Limbo</button>
     </div>
 
     <div class="main">
@@ -637,6 +905,36 @@
     <div class="keno-drawn-numbers" id="keno-drawn-list"></div>
   </div>
   <div class="keno-results" id="keno-results"></div>
+</div>
+
+<div id="limbo-container" style="display:none; margin-top:20px;">
+  <h3>📉 Limbo</h3>
+  
+  <div class="limbo-selector">
+    <div class="limbo-title">🎯 Enter Target Multiplier:</div>
+    <div class="limbo-input-group">
+      <input type="number" id="limbo-multiplier" class="limbo-custom-input" placeholder="e.g. 2.5" step="0.1" min="1.0" max="100">
+    </div>
+    <div class="limbo-presets">
+      <button class="limbo-preset-btn" onclick="limboSetMult(1.5)">Quick: 1.5x</button>
+      <button class="limbo-preset-btn" onclick="limboSetMult(2)">Quick: 2x</button>
+      <button class="limbo-preset-btn" onclick="limboSetMult(3)">Quick: 3x</button>
+      <button class="limbo-preset-btn" onclick="limboSetMult(5)">Quick: 5x</button>
+      <button class="limbo-preset-btn" onclick="limboSetMult(10)">Quick: 10x</button>
+      <button class="limbo-preset-btn" onclick="limboSetMult(20)">Quick: 20x</button>
+    </div>
+  </div>
+  
+  <div class="limbo-result-display" id="limbo-result-display">
+    <div class="limbo-target">Target: <span id="limbo-target-mult" style="color:#98FF98;">-</span></div>
+    <div class="limbo-generated" id="limbo-generated-mult">?</div>
+    <div class="limbo-message" id="limbo-message"></div>
+  </div>
+  
+  <div class="limbo-controls">
+    <button class="limbo-play-btn" id="limbo-play-btn" onclick="limboPlay()">▶ Play</button>
+    <button class="limbo-reset-btn" id="limbo-reset-btn" onclick="limboResetGame()" style="display:none;">↻ Reset</button>
+  </div>
 </div>
 
 <div id="balloon-container" style="display:none; margin-top:20px;">
@@ -734,12 +1032,14 @@
       document.getElementById('hilo-container').style.display = mode === 'hilo' ? 'block' : 'none';
       document.getElementById("balloon-container").style.display = mode === "balloon" ? "block" : "none";
       document.getElementById("keno-container").style.display = mode === "keno" ? "block" : "none";
+      document.getElementById("limbo-container").style.display = mode === "limbo" ? "block" : "none";
       log(
   mode === 'minesweeper' ? "💣 Minesweeper mode activated." :
   mode === 'slot' ? "🎰 Slot mode activated." :
   mode === 'hilo' ? "🃏 Hi-Lo mode activated." :
   mode === 'balloon' ? "🎈 Balloon mode activated." :
   mode === 'keno' ? "🎰 Keno mode activated." :
+  mode === 'limbo' ? "📉 Limbo mode activated." :
   "🎲 Dice mode activated."
 );
       if (mode === 'minesweeper') initMinesweeper();
@@ -986,18 +1286,6 @@ function randomCrash() {
   balloonRunning = true;
   balloonCashed = false;
   balloonLocked = false;
-  balloonPumps = 0;
-
-  document.getElementById("pump-btn").disabled = false;
-  document.getElementById("cash-btn").disabled = false;
-
-  document.getElementById("balloon-status").innerText = "Pump the balloon!";
-  updateBalloonUI();
-
-  balloonMultiplier = 1;
-  balloonCrash = randomCrash();
-  balloonRunning = true;
-  balloonCashed = false;
   balloonPumps = 0;
 
   document.getElementById("pump-btn").disabled = false;
@@ -1288,7 +1576,106 @@ function kenoUpdateUI() {
   document.getElementById('keno-draw-btn').disabled = kenoSelected.size === 0 || kenoGameActive;
 }
 
+// ===== LIMBO =====
+let limboSelectedMult = null;
+let limboGameActive = false;
 
+function limboSetMult(mult) {
+  document.getElementById('limbo-multiplier').value = mult;
+  limboSelectedMult = mult;
+  log(`🎯 Target set to ${mult}x`);
+}
+
+function limboPlay() {
+  const bet = parseInt(document.getElementById('bet').value);
+  const inputMult = parseFloat(document.getElementById('limbo-multiplier').value);
+  
+  if (isNaN(bet) || bet <= 0 || bet > balance) {
+    log("❌ Invalid bet!");
+    return;
+  }
+  
+  if (isNaN(inputMult) || inputMult < 1.0 || inputMult > 100) {
+    log("❌ Enter a valid multiplier (1.0 - 100)!");
+    return;
+  }
+  
+  limboSelectedMult = inputMult;
+  limboGameActive = true;
+  
+  // Disable controls
+  document.getElementById('limbo-multiplier').disabled = true;
+  document.querySelectorAll('.limbo-preset-btn').forEach(btn => {
+    btn.disabled = true;
+  });
+  document.getElementById('limbo-play-btn').disabled = true;
+  
+  // Show result display
+  document.getElementById('limbo-result-display').classList.add('show');
+  document.getElementById('limbo-target-mult').innerText = `${limboSelectedMult.toFixed(2)}x`;
+  
+  // Generate random multiplier
+  const generatedMult = (Math.random() * 15 + 1.0).toFixed(2);
+  
+  // Delay for animation effect
+  setTimeout(() => {
+    const generatedNum = parseFloat(generatedMult);
+    const isWin = generatedNum >= limboSelectedMult;
+    
+    const resultEl = document.getElementById('limbo-generated-mult');
+    resultEl.innerText = `${generatedMult}x`;
+    
+    if (isWin) {
+      resultEl.classList.remove('lose');
+      resultEl.classList.add('win');
+      
+      const winAmount = Math.floor(bet * generatedNum);
+      balance += winAmount - bet;
+      
+      document.getElementById('limbo-message').className = 'limbo-message win';
+      document.getElementById('limbo-message').innerText = `✅ WIN! +$${winAmount}`;
+      
+      log(`🎉 Limbo WIN! Generated ${generatedMult}x >= Target ${limboSelectedMult.toFixed(2)}x. Won $${winAmount}!`);
+    } else {
+      resultEl.classList.remove('win');
+      resultEl.classList.add('lose');
+      
+      balance -= bet;
+      
+      document.getElementById('limbo-message').className = 'limbo-message lose';
+      document.getElementById('limbo-message').innerText = `❌ LOSE! -$${bet}`;
+      
+      log(`💀 Limbo LOSE! Generated ${generatedMult}x < Target ${limboSelectedMult.toFixed(2)}x. Lost $${bet}.`);
+    }
+    
+    updateBalance();
+    
+    // Show reset button
+    document.getElementById('limbo-play-btn').style.display = 'none';
+    document.getElementById('limbo-reset-btn').style.display = 'block';
+    
+  }, 1000);
+}
+
+function limboResetGame() {
+  limboSelectedMult = null;
+  limboGameActive = false;
+  
+  // Reset UI
+  document.getElementById('limbo-result-display').classList.remove('show');
+  document.getElementById('limbo-generated-mult').className = 'limbo-generated';
+  document.getElementById('limbo-generated-mult').innerText = '?';
+  document.getElementById('limbo-message').innerText = '';
+  
+  // Re-enable controls
+  document.getElementById('limbo-multiplier').disabled = false;
+  document.querySelectorAll('.limbo-preset-btn').forEach(btn => {
+    btn.disabled = false;
+  });
+  document.getElementById('limbo-play-btn').disabled = false;
+  document.getElementById('limbo-play-btn').style.display = 'block';
+  document.getElementById('limbo-reset-btn').style.display = 'none';
+}
 
   </script>
   
