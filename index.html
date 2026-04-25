@@ -624,6 +624,14 @@
   letter-spacing: 1px;
 }
 
+.limbo-guide {
+  color: #cbd5e1;
+  font-size: 0.95em;
+  max-width: 660px;
+  margin: 0 auto 18px auto;
+  line-height: 1.5;
+}
+
 .limbo-input-group {
   display: flex;
   gap: 15px;
@@ -812,11 +820,143 @@
   opacity: 0.5;
 }
 
+.wheel-wrap {
+  position: relative;
+  width: 500px;
+  height: 500px;
+  margin: 20px auto;
+}
 
+.pointer {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 18px solid transparent;
+  border-right: 18px solid transparent;
+  border-top: 42px solid white;
+  z-index: 10;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 8px solid #1e293b;
+  position: relative;
+  transition: transform 5s cubic-bezier(0.17, 0.67, 0.18, 1);
+  box-shadow: 0 0 30px rgba(0,0,0,0.4);
+}
+
+.wheel::after {
+  content: "";
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  background: #1c1c2c;
+  border: 6px solid #1e293b;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+.wheel-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.wheel-controls select,
+.wheel-controls button {
+  font-size: 20px;
+  padding: 14px 22px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  background: linear-gradient(135deg, #00AA88, #22c55e);
+  color: white;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: all 0.25s ease;
+}
+
+.wheel-controls select {
+  min-width: 180px;
+  background: #111827;
+  border: 1px solid #334155;
+}
+
+.wheel-controls button:hover,
+.wheel-controls select:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255,255,255,0.18);
+}
+
+.wheel-legend {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  margin: 18px auto 0 auto;
+  max-width: 680px;
+}
+
+.wheel-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #111827;
+  border: 1px solid #334155;
+}
+
+.wheel-swatch {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+
+.wheel-legend-text {
+  display: flex;
+  flex-direction: column;
+  color: #e2e8f0;
+}
+
+.wheel-legend-text .legend-label {
+  font-weight: bold;
+  color: #f8fafc;
+}
+
+.wheel-legend-text .legend-value {
+  font-size: 0.95em;
+  color: #94a3b8;
+}
 
   </style>
 </head>
 <body>
+
+<div id="disclaimer-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:#111827; display:flex; flex-direction:column; justify-content:center; align-items:center; z-index:20; text-align:center; padding:30px;">
+  <h1 style="color:#ff4d6d; font-size:48px; margin-bottom:20px;">⚠️ DISCLAIMER ⚠️</h1>
+
+  <p style="max-width:700px; font-size:22px; line-height:1.6; color:white; margin-bottom:30px;">
+    This game is just a parody of other online gambling websites made for fun.<br><br>
+    <strong style="color:#98FF98;">NEVER try real online gambling.</strong>
+  </p>
+
+  <button onclick="acceptDisclaimer()" style="font-size:22px; padding:14px 30px; border:none; border-radius:10px; cursor:pointer; background:linear-gradient(135deg, #98FF98, #70DD70); color:#1c1c2c; font-weight:bold;">
+    I Understand
+  </button>
+</div>
+
+
 
   <div id="login-screen">
     <h1>🎲 DERN88 🎰</h1>
@@ -842,6 +982,7 @@
       <button onclick="setMode('balloon')">🎈 Balloon</button>
       <button onclick="setMode('keno')">🎫 Keno</button>
       <button onclick="setMode('limbo')">📉 Limbo</button>
+      <button onclick="setMode('wheel')">🎡 Wheel</button>
     </div>
 
     <div class="main">
@@ -915,6 +1056,7 @@
     <div class="limbo-input-group">
       <input type="number" id="limbo-multiplier" class="limbo-custom-input" placeholder="e.g. 2.5" step="0.1" min="1.0" max="100">
     </div>
+    <div class="limbo-guide">Win chance = <strong>100 ÷ multiplier</strong>. Example: 2x = 50.00%, 3x = 33.33%, 10x = 10.00%. Decimal multipliers like 2.5x are supported.</div>
     <div class="limbo-presets">
       <button class="limbo-preset-btn" onclick="limboSetMult(1.5)">Quick: 1.5x</button>
       <button class="limbo-preset-btn" onclick="limboSetMult(2)">Quick: 2x</button>
@@ -927,6 +1069,7 @@
   
   <div class="limbo-result-display" id="limbo-result-display">
     <div class="limbo-target">Target: <span id="limbo-target-mult" style="color:#98FF98;">-</span></div>
+    <div class="limbo-target">Win chance: <span id="limbo-chance" style="color:#98FF98;">-</span></div>
     <div class="limbo-generated" id="limbo-generated-mult">?</div>
     <div class="limbo-message" id="limbo-message"></div>
   </div>
@@ -955,6 +1098,34 @@
   <h3 id="balloon-status">Ready</h3>
 </div>
 
+<div id="wheel-container" style="display:none; margin-top:20px;">
+  <h3>🎡 Wheel</h3>
+
+  <div class="wheel-wrap">
+    <div class="pointer"></div>
+    <div class="wheel" id="wheel"></div>
+  </div>
+
+  <div class="wheel-controls">
+    <select id="segmentCount" onchange="buildWheel()">
+      <option value="10">10 Segments</option>
+      <option value="20">20 Segments</option>
+      <option value="30" selected>30 Segments</option>
+      <option value="40">40 Segments</option>
+      <option value="50">50 Segments</option>
+    </select>
+
+    
+    <button id="wheel-spin-btn" onclick="spinWheel()">SPIN 🎡</button>
+  </div>
+
+  <div class="wheel-legend" id="wheel-legend" aria-label="Wheel legend"></div>
+
+  <div id="result" style="margin-top:20px;">
+    Choose segments and spin
+  </div>
+</div>
+
   <div class="input-area">
     <div>
       <label>Bet Amount: <input type="number" id="bet" value="50"></label>
@@ -975,12 +1146,29 @@
 
   <button id="exit-btn" onclick="window.close()">Exit</button>
 
-
+  </div>
+</div>
 
     </div>
   </div>
 
   <script>
+
+    const colorNameMap = {
+  "#4b5563": "Grey",
+  "#16a34a": "Green",
+  "#facc15": "Yellow",
+  "#fb923c": "Orange",
+  "#f59e0b": "Amber",
+  "#8b5cf6": "Purple",
+  "#3b82f6": "Blue",
+  "#ef4444": "Red"
+};
+
+function acceptDisclaimer() {
+  document.getElementById("disclaimer-screen").style.display = "none";
+}
+
     let balance = 500;
     let currentUser = null;
     let spinning = false;
@@ -1033,6 +1221,7 @@
       document.getElementById("balloon-container").style.display = mode === "balloon" ? "block" : "none";
       document.getElementById("keno-container").style.display = mode === "keno" ? "block" : "none";
       document.getElementById("limbo-container").style.display = mode === "limbo" ? "block" : "none";
+      document.getElementById("wheel-container").style.display = mode === "wheel" ? "block" : "none";
       log(
   mode === 'minesweeper' ? "💣 Minesweeper mode activated." :
   mode === 'slot' ? "🎰 Slot mode activated." :
@@ -1040,6 +1229,7 @@
   mode === 'balloon' ? "🎈 Balloon mode activated." :
   mode === 'keno' ? "🎰 Keno mode activated." :
   mode === 'limbo' ? "📉 Limbo mode activated." :
+  mode === 'wheel' ? "🎡 Wheel mode activated." :
   "🎲 Dice mode activated."
 );
       if (mode === 'minesweeper') initMinesweeper();
@@ -1271,6 +1461,7 @@ let balloonRunning = false;
 let balloonCashed = false;
 let balloonPumps = 0;
 let balloonBetLocked = false;
+let balloonLocked = false;
 
 function randomCrash() {
   let r = Math.random();
@@ -1280,19 +1471,6 @@ function randomCrash() {
   if (r < 0.97) return 3.3 + Math.random() * 3;    // 3.3x - 6.3x (12%)
   return 6 + Math.random() * 10;                   // 6x - 16x (3% rare)
 }
-
-  balloonMultiplier = 1;
-  balloonCrash = randomCrash();
-  balloonRunning = true;
-  balloonCashed = false;
-  balloonLocked = false;
-  balloonPumps = 0;
-
-  document.getElementById("pump-btn").disabled = false;
-  document.getElementById("cash-btn").disabled = false;
-
-  document.getElementById("balloon-status").innerText = "Pump the balloon!";
-  updateBalloonUI();
 
 function pumpBalloon() {
   if (balloonCashed || balloonLocked) return;
@@ -1613,29 +1791,31 @@ function limboPlay() {
   // Show result display
   document.getElementById('limbo-result-display').classList.add('show');
   document.getElementById('limbo-target-mult').innerText = `${limboSelectedMult.toFixed(2)}x`;
+
+  const winChance = (100 / limboSelectedMult).toFixed(2);
+  document.getElementById('limbo-chance').innerText = `${winChance}%`;
   
-  // Generate random multiplier
-  const generatedMult = (Math.random() * 15 + 1.0).toFixed(2);
+  const randomValue = Math.max(Math.random(), 0.000001);
+  const generatedMult = Math.max(1.0, 1.0 / randomValue);
+  const cappedGeneratedMult = Math.min(generatedMult, 999.99).toFixed(2);
+  const generatedNum = parseFloat(cappedGeneratedMult);
+  const isWin = generatedNum >= limboSelectedMult;
   
-  // Delay for animation effect
   setTimeout(() => {
-    const generatedNum = parseFloat(generatedMult);
-    const isWin = generatedNum >= limboSelectedMult;
-    
     const resultEl = document.getElementById('limbo-generated-mult');
-    resultEl.innerText = `${generatedMult}x`;
+    resultEl.innerText = `${cappedGeneratedMult}x`;
     
     if (isWin) {
       resultEl.classList.remove('lose');
       resultEl.classList.add('win');
       
-      const winAmount = Math.floor(bet * limboSelectedMult);
+      const winAmount = bet * limboSelectedMult;
       balance += winAmount - bet;
       
       document.getElementById('limbo-message').className = 'limbo-message win';
-      document.getElementById('limbo-message').innerText = `✅ WIN! +$${winAmount}`;
+      document.getElementById('limbo-message').innerText = `✅ WIN! +$${winAmount.toFixed(2)}`;
       
-      log(`🎉 Limbo WIN! Generated ${generatedMult}x >= Target ${limboSelectedMult.toFixed(2)}x. Won $${winAmount}!`);
+      log(`🎉 Limbo WIN! Generated ${cappedGeneratedMult}x >= Target ${limboSelectedMult.toFixed(2)}x. Won $${winAmount.toFixed(2)}!`);
     } else {
       resultEl.classList.remove('win');
       resultEl.classList.add('lose');
@@ -1645,7 +1825,7 @@ function limboPlay() {
       document.getElementById('limbo-message').className = 'limbo-message lose';
       document.getElementById('limbo-message').innerText = `❌ LOSE! -$${bet}`;
       
-      log(`💀 Limbo LOSE! Generated ${generatedMult}x < Target ${limboSelectedMult.toFixed(2)}x. Lost $${bet}.`);
+      log(`💀 Limbo LOSE! Generated ${cappedGeneratedMult}x < Target ${limboSelectedMult.toFixed(2)}x. Lost $${bet}.`);
     }
     
     updateBalance();
@@ -1666,6 +1846,8 @@ function limboResetGame() {
   document.getElementById('limbo-generated-mult').className = 'limbo-generated';
   document.getElementById('limbo-generated-mult').innerText = '?';
   document.getElementById('limbo-message').innerText = '';
+  document.getElementById('limbo-target-mult').innerText = '-';
+  document.getElementById('limbo-chance').innerText = '-';
   
   // Re-enable controls
   document.getElementById('limbo-multiplier').disabled = false;
@@ -1677,22 +1859,230 @@ function limboResetGame() {
   document.getElementById('limbo-reset-btn').style.display = 'none';
 }
 
+const wheel = document.getElementById("wheel");
+const result = document.getElementById("result");
+const betInput = document.getElementById("bet");
+const segmentSelect = document.getElementById("segmentCount");
+
+let currentSegments = [];
+let currentRotation = 0;
+let isSpinning = false;
+
+const wheelColors = {
+  grey: "#4b5563",
+  green: "#16a34a",
+  yellow: "#facc15",
+  orange: "#fb923c",
+  amber: "#f59e0b",
+  purple: "#8b5cf6",
+  blue: "#3b82f6",
+  red: "#ef4444"
+};
+
+const colorMultiplierMap = {
+  [wheelColors.grey]: 0,
+  [wheelColors.green]: 1.5,
+  [wheelColors.yellow]: 1.9,
+  [wheelColors.orange]: 2,
+  [wheelColors.amber]: 2.3,
+  [wheelColors.purple]: 3,
+  [wheelColors.blue]: 5,
+  [wheelColors.red]: 10
+};
+
+const wheelLegendItems = [
+  { label: "0.00x", color: wheelColors.grey },
+  { label: "1.5x", color: wheelColors.green },
+  { label: "1.9x", color: wheelColors.yellow },
+  { label: "2x", color: wheelColors.orange },
+  { label: "2.3x", color: wheelColors.amber },
+  { label: "3x", color: wheelColors.purple },
+  { label: "5x", color: wheelColors.blue },
+  { label: "10x", color: wheelColors.red }
+];
+
+const presets = {
+  10: [
+    ...Array(5).fill({ label: "0.00x", multiplier: 0, color: wheelColors.grey }),
+    ...Array(2).fill({ label: "1.5x", multiplier: 1.5, color: wheelColors.green }),
+    ...Array(1).fill({ label: "1.9x", multiplier: 1.9, color: wheelColors.yellow }),
+    ...Array(1).fill({ label: "2x", multiplier: 2, color: wheelColors.orange }),
+    ...Array(1).fill({ label: "3x", multiplier: 3, color: wheelColors.purple })
+  ],
+
+  20: [
+    ...Array(10).fill({ label: "0.00x", multiplier: 0, color: wheelColors.grey }),
+    ...Array(5).fill({ label: "1.5x", multiplier: 1.5, color: wheelColors.green }),
+    ...Array(2).fill({ label: "1.9x", multiplier: 1.9, color: wheelColors.yellow }),
+    ...Array(2).fill({ label: "2x", multiplier: 2, color: wheelColors.orange }),
+    ...Array(1).fill({ label: "3x", multiplier: 3, color: wheelColors.purple })
+  ],
+
+  30: [
+    ...Array(15).fill({ label: "0.00x", multiplier: 0, color: wheelColors.grey }),
+    ...Array(7).fill({ label: "1.5x", multiplier: 1.5, color: wheelColors.green }),
+    ...Array(5).fill({ label: "1.9x", multiplier: 1.9, color: wheelColors.yellow }),
+    ...Array(1).fill({ label: "2x", multiplier: 2, color: wheelColors.orange }),
+    ...Array(1).fill({ label: "3x", multiplier: 3, color: wheelColors.purple }),
+    ...Array(1).fill({ label: "5x", multiplier: 5, color: wheelColors.blue })
+  ],
+
+  40: [
+    ...Array(20).fill({ label: "0.00x", multiplier: 0, color: wheelColors.grey }),
+    ...Array(9).fill({ label: "1.5x", multiplier: 1.5, color: wheelColors.green }),
+    ...Array(6).fill({ label: "1.9x", multiplier: 1.9, color: wheelColors.yellow }),
+    ...Array(2).fill({ label: "2x", multiplier: 2, color: wheelColors.orange }),
+    ...Array(3).fill({ label: "2.3x", multiplier: 2.3, color: wheelColors.amber }),
+    ...Array(2).fill({ label: "3x", multiplier: 3, color: wheelColors.purple }),
+    ...Array(1).fill({ label: "5x", multiplier: 5, color: wheelColors.blue }),
+    ...Array(1).fill({ label: "10x", multiplier: 10, color: wheelColors.red })
+  ],
+
+  50: [
+    ...Array(24).fill({ label: "0.00x", multiplier: 0, color: wheelColors.grey }),
+    ...Array(15).fill({ label: "1.5x", multiplier: 1.5, color: wheelColors.green }),
+    ...Array(6).fill({ label: "1.9x", multiplier: 1.9, color: wheelColors.yellow }),
+    ...Array(2).fill({ label: "2x", multiplier: 2, color: wheelColors.orange }),
+    ...Array(1).fill({ label: "3x", multiplier: 3, color: wheelColors.purple }),
+    ...Array(1).fill({ label: "5x", multiplier: 5, color: wheelColors.blue }),
+    ...Array(1).fill({ label: "10x", multiplier: 10, color: wheelColors.red })
+  ]
+};
+
+function scatterSegments(segments) {
+  const groups = new Map();
+  segments.forEach(segment => {
+    const key = segment.color;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(segment);
+  });
+
+  const ordered = [];
+  let lastColor = null;
+
+  while (Array.from(groups.values()).some(group => group.length > 0)) {
+    const available = Array.from(groups.entries())
+      .filter(([color, group]) => group.length > 0 && color !== lastColor)
+      .sort((a, b) => b[1].length - a[1].length);
+
+    const next = available.length ? available[0] : Array.from(groups.entries()).find(([_, group]) => group.length > 0);
+    if (!next) break;
+
+    const [color, group] = next;
+    ordered.push(group.pop());
+    lastColor = color;
+  }
+
+  return ordered;
+}
+
+function buildWheel() {
+  const count = Number(segmentSelect.value);
+  currentSegments = scatterSegments([...presets[count]]);
+
+  const angle = 360 / currentSegments.length;
+  let gradient = [];
+
+  currentSegments.forEach((seg, i) => {
+    const start = i * angle;
+    const end = (i + 1) * angle;
+    gradient.push(`${seg.color} ${start}deg ${end}deg`);
+  });
+
+  wheel.style.background = `conic-gradient(${gradient.join(",")})`;
+  buildWheelLegend();
+}
+
+function buildWheelLegend() {
+  const legend = document.getElementById("wheel-legend");
+  legend.innerHTML = "";
+
+  const unique = new Map();
+  currentSegments.forEach(seg => {
+    if (!unique.has(seg.color)) {
+      unique.set(seg.color, { label: seg.label, multiplier: seg.multiplier, color: seg.color });
+    }
+  });
+
+  Array.from(unique.values())
+    .sort((a, b) => a.multiplier - b.multiplier)
+    .forEach(item => {
+      legend.innerHTML += `
+        <div class="wheel-legend-item">
+          <div class="wheel-swatch" style="background:${item.color}"></div>
+          <div class="wheel-legend-text">
+            <span class="legend-label">${item.label}</span>
+            <span class="legend-value">${item.multiplier}x multiplier</span>
+          </div>
+        </div>
+      `;
+    });
+}
+
+function getWheelSegmentFromPointer(rotation) {
+  const segmentAngle = 360 / currentSegments.length;
+  const normalizedRotation = ((rotation % 360) + 360) % 360;
+  const pointerAngle = (360 - normalizedRotation) % 360;
+
+  const samples = 7;
+  const spread = Math.min(segmentAngle * 0.75, 18);
+  const counts = new Map();
+  const centerIndex = Math.floor(pointerAngle / segmentAngle) % currentSegments.length;
+
+  for (let i = 0; i < samples; i++) {
+    const offset = -spread / 2 + (spread / (samples - 1)) * i;
+    const sampleAngle = ((pointerAngle + offset) % 360 + 360) % 360;
+    const index = Math.floor(sampleAngle / segmentAngle) % currentSegments.length;
+    counts.set(index, (counts.get(index) || 0) + 1);
+  }
+
+  let bestIndex = centerIndex;
+  let bestCount = counts.get(centerIndex) || 0;
+
+  counts.forEach((count, index) => {
+    if (count > bestCount) {
+      bestCount = count;
+      bestIndex = index;
+    }
+  });
+
+  return currentSegments[bestIndex];
+}
+
+function spinWheel() {
+  if (isSpinning) return;
+  const bet = parseFloat(betInput.value) || 0;
+  if (!bet || bet <= 0 || bet > balance) {
+    result.innerText = "Enter a valid bet first.";
+    return;
+  }
+
+  isSpinning = true;
+  const segmentAngle = 360 / currentSegments.length;
+  const winnerIndex = Math.floor(Math.random() * currentSegments.length);
+  const centerAngle = (winnerIndex * segmentAngle) + (segmentAngle / 2);
+  const finalRotation = (360 * 8) + (360 - centerAngle);
+
+  currentRotation += finalRotation;
+  wheel.style.transform = `rotate(${currentRotation}deg)`;
+  result.innerText = "Spinning...";
+
+  setTimeout(() => {
+    const landed = getWheelSegmentFromPointer(currentRotation);
+    const colorMultiplier = colorMultiplierMap[landed.color] ?? landed.multiplier;
+    const payout = bet * colorMultiplier;
+    const net = payout - bet;
+
+    balance += net;
+    updateBalance();
+
+    result.innerText = `Landed on ${landed.label} | Color: ${colorNameMap[landed.color] || landed.color} | Multiplier: ${colorMultiplier}x | Bet: $${bet} | Payout: $${payout.toFixed(2)} | Net: ${net >= 0 ? "+" : ""}$${net.toFixed(2)}`;
+    isSpinning = false;
+  }, 5200);
+}
+
+segmentSelect.addEventListener("change", buildWheel);
+
+buildWheel();
+resetBalloon();
   </script>
-  
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
